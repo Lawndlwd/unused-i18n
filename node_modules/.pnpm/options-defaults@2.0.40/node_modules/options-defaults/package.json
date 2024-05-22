@@ -1,0 +1,32 @@
+{
+    "name": "options-defaults",
+    "version": "2.0.40",
+    "description": "Options-defaults design pattern implementation for reliable configuration. It merges objects deeply, overrides arrays and classes (different than Object) and the result remains strongly typed.",
+    "license": "MIT",
+    "keywords": [
+        "defaults",
+        "design pattern",
+        "merge",
+        "options"
+    ],
+    "files": [
+        "dist"
+    ],
+    "author": "Artur Kurowski <radarsu@gmail.com>",
+    "homepage": "https://github.com/radarsu/options-defaults#readme",
+    "main": "dist/index.js",
+    "module": "dist/index.module.js",
+    "browser": {
+        "./dist/index.js": "./dist/index.browser.js",
+        "./dist/index.module.js": "./dist/index.module.js"
+    },
+    "types": "dist/index.d.ts",
+    "devDependencies": {
+        "@rollup/plugin-typescript": "8.3.3",
+        "@types/node": "16.11.41",
+        "rollup": "2.75.6",
+        "rollup-plugin-terser": "7.0.2",
+        "typescript": "4.7.3"
+    },
+    "gitHead": "5f409f3708573a20e3ce2e5088531dcd8951df7b"
+}

@@ -1,0 +1,2 @@
+export declare const merge: (object: any, ...sources: any[]) => any;
+export declare const defaults: <Defaults, Source, Source2, Source3, Source4, Source5, Source6>(defaultOptions: Defaults, source: Source, source2?: Source2 | undefined, source3?: Source3 | undefined, source4?: Source4 | undefined, source5?: Source5 | undefined, source6?: Source6 | undefined, ...args: any[]) => Defaults & Source & Source2 & Source3 & Source4 & Source5;

@@ -1,0 +1,1 @@
+{"version":3,"file":"is-file-newer.js","sourceRoot":"","sources":["../../src/utils/is-file-newer.ts"],"names":[],"mappings":"AAEA,MAAM,CAAC,MAAM,WAAW,GAAG,CAAC,KAAe,EAAE,KAAe,EAAE,EAAE;IAC5D,OAAO,KAAK,CAAC,OAAO,GAAG,KAAK,CAAC,OAAO,CAAC;AACzC,CAAC,CAAC"}

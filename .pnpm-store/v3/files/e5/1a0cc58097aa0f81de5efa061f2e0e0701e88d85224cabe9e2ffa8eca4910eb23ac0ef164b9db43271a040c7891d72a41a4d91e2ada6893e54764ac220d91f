@@ -1,0 +1,1 @@
+{"version":3,"file":"load.js","sourceRoot":"","sources":["../../../src/providers/transpile/load.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,QAAQ,MAAM,iCAAiC,CAAC;AAE5D,MAAM,CAAC,MAAM,IAAI,GAAG,KAAK,EAAE,OAAkC,EAAE,EAAE;IAC7D,OAAO,QAAQ,CAAC,SAAS,CAAC,OAAO,CAAC,CAAC;AACvC,CAAC,CAAC"}
