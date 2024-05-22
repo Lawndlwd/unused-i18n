@@ -1,4 +1,0 @@
--   **Beats alternatives** - better alternative to `{...defaults, ...options}` destructing and lodash `_.defaults` or `_.merge`
--   **Secure** - immune to prototype pollution attack
--   **Simple** - just 40 lines of clean TypeScript code
--   **Strongly typed** - result remains strongly typed
