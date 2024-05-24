@@ -1,3 +1,5 @@
 #!/usr/bin/env node
 
-import './index'
+import { processTranslations } from './index'
+
+processTranslations()

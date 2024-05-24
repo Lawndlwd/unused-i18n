@@ -5,8 +5,9 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
-    "lib": ["ES2019"] // Add this line
+    "lib": ["ES2019"]
   },
   "include": ["src/**/*"]
 }

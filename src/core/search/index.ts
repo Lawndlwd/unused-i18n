@@ -3,13 +3,20 @@ import * as path from 'path'
 
 export const searchFilesWithPattern = (
   baseDir: string,
-  regex: RegExp
+  regex: RegExp,
+  excludePatterns: RegExp[] = []
 ): string[] => {
   const foundFiles: string[] = []
-  const searchRecursively = (directory: string): void => {
+
+  function searchRecursively(directory: string): void {
     const files = fs.readdirSync(directory)
+
     for (const file of files) {
       const fullPath = path.join(directory, file)
+      // Skip excluded patterns
+      if (excludePatterns.some((pattern) => pattern.test(fullPath))) {
+        continue
+      }
       if (fs.lstatSync(fullPath).isDirectory()) {
         searchRecursively(fullPath)
       } else if (regex.test(fs.readFileSync(fullPath, 'utf-8'))) {
@@ -17,6 +24,8 @@ export const searchFilesWithPattern = (
       }
     }
   }
+
   searchRecursively(baseDir)
+
   return foundFiles
 }
