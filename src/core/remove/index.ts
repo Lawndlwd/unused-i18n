@@ -5,34 +5,31 @@ export const removeLocaleKeys = (
   keysToRemove: string[]
 ) => {
   const localeContent = fs.readFileSync(localePath, 'utf-8').split('\n')
-
-  let inKeyToRemove = false
+  let removeNextLine = -1
 
   const updatedLocaleContent = localeContent.reduce(
-    (acc: string[], line, index, array) => {
-      if (!inKeyToRemove) {
-        const match = line.match(/'([^']+)':/)
-        if (match) {
-          const key = match[1]
-          if (keysToRemove.includes(key)) {
-            inKeyToRemove = true
-          } else {
+    (acc: string[], line, index) => {
+      const match = line.match(/^\s*'([^']+)':/)
+      if (match) {
+        const key = match[1]
+        if (keysToRemove.includes(key)) {
+          if (line.trim().endsWith('} as const')) {
             acc.push(line)
+          }
+          if (line.trim().endsWith(':')) {
+            removeNextLine = index + 1
           }
         } else {
           acc.push(line)
         }
       } else {
-        if (
-          line.trim().endsWith(',') ||
-          (line.trim().endsWith('}') && !line.trim().endsWith('} as const'))
-        ) {
-          inKeyToRemove = false
-        }
-        if (!inKeyToRemove && line.trim().endsWith('} as const')) {
+        if (removeNextLine === index) {
+          removeNextLine = -1
+        } else {
           acc.push(line)
         }
       }
+
       return acc
     },
     []

@@ -3,52 +3,81 @@ import { loadConfig } from './utils/loadConfig'
 import { searchFilesWithPattern } from './core/search'
 import { extractTranslations } from './core/extract'
 import { removeLocaleKeys } from './core/remove'
-import { shouldExclude } from './utils/shouldExclude'
-import { escapeRegex } from './utils/escapeRegex'
+import chalk from 'chalk'
+import boxen from 'boxen'
+import { getMissingTranslations } from './utils/missingTranslations'
 
-const config = loadConfig()
+export const processTranslations = () => {
+  const config = loadConfig()
+  const excludePatterns = [/\.test\./, /__mock__/]
+  const localesExtensions = config.localesExtensions ?? 'js'
+  const localesNames = config.localesNames ?? 'en'
+  config.paths.forEach(({ srcPath, localPath }) => {
+    let allExtractedTranslations: string[] = []
 
-config.paths.forEach(({ srcPath, localPath }) => {
-  const files = searchFilesWithPattern(srcPath, /use-i18n/)
-  console.log('files', files)
-  const extractedTranslations = files
-    .map((file) => extractTranslations(file))
-    .reduce((acc, val) => acc.concat(val), [])
-    .sort()
-    .filter((item, index, array) => array.indexOf(item) === index)
+    srcPath.forEach((pathEntry) => {
+      if (config.ignorePaths && config.ignorePaths?.includes(pathEntry)) return
+      const files = searchFilesWithPattern(
+        pathEntry,
+        /use-i18n/,
+        excludePatterns
+      )
 
-  const localeFilePath = `${localPath}/en.ts` // Adjust this if locale file naming is different
-  if (fs.existsSync(localeFilePath)) {
-    const localLines = fs
-      .readFileSync(localeFilePath, 'utf-8')
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.match(/'[^']*':/))
-      .map((line) => line.match(/'([^']+)':/)?.[1] ?? '')
-      .sort()
+      const extractedTranslations = files
+        .flatMap((file) => extractTranslations(file, config.scopedNames))
+        .sort()
+        .filter((item, index, array) => array.indexOf(item) === index)
 
-    const missingTranslations = localLines.filter(
-      (line) =>
-        !shouldExclude(line, config.excludeKey) &&
-        !(
-          extractedTranslations.includes(line) ||
-          extractedTranslations.some((item) =>
-            new RegExp(`^${escapeRegex(item).replace(/\*\*/g, '.+')}$`).test(
-              line
-            )
+      allExtractedTranslations = [
+        ...allExtractedTranslations,
+        ...extractedTranslations,
+      ]
+    })
+
+    allExtractedTranslations = [...new Set(allExtractedTranslations)].sort()
+
+    const localeFilePath = `${localPath}/${localesNames}.${localesExtensions}`
+    if (fs.existsSync(localeFilePath)) {
+      const localLines = fs
+        .readFileSync(localeFilePath, 'utf-8')
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.match(/'[^']*':/))
+        .map((line) => line.match(/'([^']+)':/)?.[1] ?? '')
+        .sort()
+
+      const missingTranslations = getMissingTranslations(
+        localLines,
+        allExtractedTranslations,
+        config.excludeKey
+      )
+
+      const formattedMissingTranslations = missingTranslations
+        .map((translation) => chalk.red(`  ${translation}`))
+        .join('\n')
+
+      const message = missingTranslations.length
+        ? `Missing translations for ${chalk.yellow(
+            localeFilePath
+          )}:\n${formattedMissingTranslations}`
+        : chalk.green(
+            `No missing translations for ${chalk.yellow(localeFilePath)}`
           )
-        )
-    )
 
-    // Log the missing translations for each locale
-    console.log(`Missing translations for ${localeFilePath}:`)
-    missingTranslations.forEach((translation) =>
-      console.log(`  ${translation}`)
-    )
+      // Display the message in a box
+      console.log(
+        boxen(message, {
+          padding: 1,
+          margin: 1,
+          borderStyle: 'double',
+          borderColor: 'yellow',
+        })
+      )
 
-    // Remove the unused locale keys
-    removeLocaleKeys(localeFilePath, missingTranslations)
-  } else {
-    console.warn(`Locale file not found: ${localeFilePath}`)
-  }
-})
+      // Remove the unused locale keys
+      removeLocaleKeys(localeFilePath, missingTranslations)
+    } else {
+      console.warn(chalk.red(`Locale file not found: ${localeFilePath}`))
+    }
+  })
+}
