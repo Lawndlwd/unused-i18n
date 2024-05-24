@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { extractTranslations } from '.'
+import { extractTranslations } from '../../../src/core/extract'
 import * as fs from 'fs'
 
 vi.mock('fs')

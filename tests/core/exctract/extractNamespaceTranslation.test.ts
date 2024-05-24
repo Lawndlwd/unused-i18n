@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractNamespaceTranslation } from '.'
+import { extractNamespaceTranslation } from '../../../src/core/extract'
 
 describe('extractNamespaceTranslation', () => {
   it('should extract namespace translations correctly', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { removeLocaleKeys } from '.'
+import { removeLocaleKeys } from '../../../src/core/remove'
 import * as fs from 'fs'
 
 // Mock file system operations

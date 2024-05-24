@@ -21,7 +21,6 @@ export const extractNamespaceTranslation = (fileContent: string): string[] => {
     const falseValue = ternaryMatch[3].trim()
     matches.push(trueValue, falseValue)
   }
-  console.log('matches', matches)
 
   return matches
 }
@@ -334,7 +333,6 @@ export const extractTranslations = (
       )
     )
     .flat(2)
-  console.log('ff', scopedTs)
 
   const normalTs = extractNormalTs(fileContent)
   const translations = [...normalTs, ...scopedTs]

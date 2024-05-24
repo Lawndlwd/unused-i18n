@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { searchFilesWithPattern } from '.'
+import { searchFilesWithPattern } from '../../../src/core/search'
 import * as fs from 'fs'
 import * as path from 'path'
 

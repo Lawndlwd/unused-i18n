@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractNormalTs } from '.'
+import { extractNormalTs } from '../../../src/core/extract'
 
 describe('extractNormalTs', () => {
   it('should extract scoped translations correctly', () => {
