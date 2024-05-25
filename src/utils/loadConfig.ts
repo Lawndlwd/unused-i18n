@@ -2,14 +2,14 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { Config } from '../types/config'
 
-const supportedExtensions = ['.json', '.js', '.ts', '.cjs']
+const supportedExtensions = ['.json', '.js', '.cjs']
 
 export const loadConfig = async (): Promise<Config> => {
   const cwd = process.cwd()
   let configPath = ''
 
   for (const ext of supportedExtensions) {
-    const potentialPath = path.resolve(cwd, `translation-cleaner.config${ext}`)
+    const potentialPath = path.resolve(cwd, `unused-i18n.config${ext}`)
     if (fs.existsSync(potentialPath)) {
       configPath = potentialPath
       break
@@ -18,7 +18,7 @@ export const loadConfig = async (): Promise<Config> => {
 
   if (!configPath) {
     throw new Error(
-      'Configuration file translation-cleaner.config not found. Supported extensions: .json, .js, .ts, .cjs.'
+      'Configuration file unused-i18n.config not found. Supported extensions: .json, .js, .ts, .cjs.'
     )
   }
 

@@ -7,6 +7,7 @@ import { searchFilesRecursively } from './lib/search'
 import { analyze } from './lib/analyze'
 import { removeLocaleKeys } from './lib/remove'
 import { ProcessTranslationsArgs } from './types/types'
+import { performance } from 'perf_hooks'
 
 export const processTranslations = async ({
   paths,
@@ -26,6 +27,7 @@ export const processTranslations = async ({
 
   const pathsToProcess = paths || config.paths
 
+  const startTime = performance.now()
   pathsToProcess.forEach(({ srcPath, localPath }) => {
     let allExtractedTranslations: string[] = []
     let pathUnusedLocalesCount = 0
@@ -107,6 +109,7 @@ export const processTranslations = async ({
       })
     }
   })
-
+  const endTime = performance.now()
   summary({ unusedLocalesCountByPath, totalUnusedLocales })
+  console.log(c.dim(`Duration   : ${(endTime - startTime).toFixed(0)}ms`))
 }

@@ -1,5 +1,4 @@
-import { SummaryArgs, UnusedLocalesCountByPath } from '../types/types'
-import createBox from './boxen'
+import { SummaryArgs } from '../types/types'
 import c from 'ansi-colors'
 
 export const summary = ({
@@ -7,13 +6,11 @@ export const summary = ({
   totalUnusedLocales,
 }: SummaryArgs) => {
   unusedLocalesCountByPath.forEach(({ messages, warning }) => {
-    console.log(createBox(messages ?? ''))
+    console.log(messages ?? '')
     if (warning) {
-      console.log(createBox(warning ?? ''))
+      console.log(warning ?? '')
     }
   })
 
-  console.log(
-    createBox(`Total unused locales: ${c.yellow(`${totalUnusedLocales}`)}`)
-  )
+  console.log(`Total unused locales: ${c.yellow(`${totalUnusedLocales}`)}`)
 }
