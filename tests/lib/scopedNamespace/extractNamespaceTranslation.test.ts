@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractNamespaceTranslation } from '../../../src/core/extract'
+import { extractNamespaceTranslation } from '../../../src/lib/scopedNamespace/extractNamespaceTranslation'
 
 describe('extractNamespaceTranslation', () => {
   it('should extract namespace translations correctly', () => {
@@ -9,7 +9,7 @@ describe('extractNamespaceTranslation', () => {
     `
 
     const expected = ['namespace.key', 'scopedTOne.key']
-    const result = extractNamespaceTranslation(fileContent)
+    const result = extractNamespaceTranslation({ fileContent })
 
     expect(result).toEqual(expected)
   })
@@ -20,7 +20,7 @@ describe('extractNamespaceTranslation', () => {
     `
 
     const expected = ['namespace.keyTrue', 'namespace.keyFalse']
-    const result = extractNamespaceTranslation(fileContent)
+    const result = extractNamespaceTranslation({ fileContent })
 
     expect(result).toEqual(expected)
   })

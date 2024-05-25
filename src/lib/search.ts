@@ -1,11 +1,12 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { SearchFilesRecursivelyArgs } from '../types/types'
 
-export const searchFilesWithPattern = (
-  baseDir: string,
-  regex: RegExp,
-  excludePatterns: RegExp[] = []
-): string[] => {
+export const searchFilesRecursively = ({
+  baseDir,
+  regex,
+  excludePatterns,
+}: SearchFilesRecursivelyArgs): string[] => {
   const foundFiles: string[] = []
 
   function searchRecursively(directory: string): void {

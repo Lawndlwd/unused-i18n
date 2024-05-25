@@ -1,14 +1,18 @@
 import * as fs from 'fs'
 import { loadConfig } from './utils/loadConfig'
-import { searchFilesWithPattern } from './core/search'
-import { extractTranslations } from './core/extract'
-import { removeLocaleKeys } from './core/remove'
 import c from 'ansi-colors'
 import { getMissingTranslations } from './utils/missingTranslations'
-import createBox from './utils/boxen'
+import { summary } from './utils/summary'
+import { searchFilesRecursively } from './lib/search'
+import { analyze } from './lib/analyze'
+import { removeLocaleKeys } from './lib/remove'
+import { ProcessTranslationsArgs } from './types/types'
 
-export const processTranslations = () => {
-  const config = loadConfig()
+export const processTranslations = async ({
+  paths,
+  action,
+}: ProcessTranslationsArgs) => {
+  const config = await loadConfig()
   const excludePatterns = [/\.test\./, /__mock__/]
   const localesExtensions = config.localesExtensions ?? 'js'
   const localesNames = config.localesNames ?? 'en'
@@ -20,20 +24,27 @@ export const processTranslations = () => {
     warning?: string
   }[] = []
 
-  config.paths.forEach(({ srcPath, localPath }) => {
+  const pathsToProcess = paths || config.paths
+
+  pathsToProcess.forEach(({ srcPath, localPath }) => {
     let allExtractedTranslations: string[] = []
     let pathUnusedLocalesCount = 0
 
     srcPath.forEach((pathEntry) => {
       if (config.ignorePaths && config.ignorePaths.includes(pathEntry)) return
-      const files = searchFilesWithPattern(
-        pathEntry,
-        /use-i18n/,
-        excludePatterns
-      )
+      const files = searchFilesRecursively({
+        excludePatterns,
+        regex: /use-i18n/,
+        baseDir: pathEntry,
+      })
 
       const extractedTranslations = files
-        .flatMap((file) => extractTranslations(file, config.scopedNames))
+        .flatMap((file) =>
+          analyze({
+            filePath: file,
+            scopedNames: config.scopedNames,
+          })
+        )
         .sort()
         .filter((item, index, array) => array.indexOf(item) === index)
 
@@ -57,11 +68,11 @@ export const processTranslations = () => {
         .map((line) => line.match(/'([^']+)':/)?.[1] ?? '')
         .sort()
 
-      const missingTranslations = getMissingTranslations(
+      const missingTranslations = getMissingTranslations({
         localLines,
-        allExtractedTranslations,
-        config.excludeKey
-      )
+        extractedTranslations: allExtractedTranslations,
+        excludeKey: config.excludeKey,
+      })
 
       pathUnusedLocalesCount = missingTranslations.length
       totalUnusedLocales += pathUnusedLocalesCount
@@ -81,7 +92,12 @@ export const processTranslations = () => {
       })
 
       // Remove the unused locale keys
-      removeLocaleKeys(localeFilePath, missingTranslations)
+      action === 'remove'
+        ? removeLocaleKeys({
+            localePath: localeFilePath,
+            missingTranslations: missingTranslations,
+          })
+        : null
     } else {
       const warningMessage = c.red(`Locale file not found: ${localeFilePath}`)
 
@@ -92,16 +108,5 @@ export const processTranslations = () => {
     }
   })
 
-  // Log total unused locales and unused locales by path
-
-  unusedLocalesCountByPath.forEach(({ messages, warning }) => {
-    console.log(createBox(messages ?? ''))
-    if (warning) {
-      console.log(createBox(warning ?? ''))
-    }
-  })
-
-  console.log(
-    createBox(`Total unused locales: ${c.yellow(`${totalUnusedLocales}`)}`)
-  )
+  summary({ unusedLocalesCountByPath, totalUnusedLocales })
 }

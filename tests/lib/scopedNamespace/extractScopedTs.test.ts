@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractScopedTs } from '../../../src/core/extract'
+import { extractScopedTs } from '../../../src/lib/scopedNamespace/extractScopedTs'
 
 describe('extractScopedTs', () => {
   it('should extract scoped translations correctly', () => {
@@ -99,7 +99,11 @@ describe('extractScopedTs', () => {
       'namespace.addForm.name.individual',
       'namespace.**',
     ]
-    const result = extractScopedTs(fileContent, namespaceTranslation, 'scopedT')
+    const result = extractScopedTs({
+      fileContent,
+      namespaceTranslation,
+      scopedName: 'scopedT',
+    })
 
     expect(result).toEqual(expect.arrayContaining(expected))
     expect(expected).toEqual(expect.arrayContaining(result))

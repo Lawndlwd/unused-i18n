@@ -2,17 +2,33 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { Config } from '../types/config'
 
-export const loadConfig = (): Config => {
-  const configPath = path.resolve(
-    process.cwd(),
-    'translation-cleaner.config.json'
-  )
-  if (!fs.existsSync(configPath)) {
+const supportedExtensions = ['.json', '.js', '.ts', '.cjs']
+
+export const loadConfig = async (): Promise<Config> => {
+  const cwd = process.cwd()
+  let configPath = ''
+
+  for (const ext of supportedExtensions) {
+    const potentialPath = path.resolve(cwd, `translation-cleaner.config${ext}`)
+    if (fs.existsSync(potentialPath)) {
+      configPath = potentialPath
+      break
+    }
+  }
+
+  if (!configPath) {
     throw new Error(
-      'Configuration file translation-cleaner.config.json not found.'
+      'Configuration file translation-cleaner.config not found. Supported extensions: .json, .js, .ts, .cjs.'
     )
   }
 
-  const configContent = fs.readFileSync(configPath, 'utf-8')
-  return JSON.parse(configContent)
+  const extension = path.extname(configPath)
+
+  if (extension === '.json') {
+    const configContent = fs.readFileSync(configPath, 'utf-8')
+    return JSON.parse(configContent) as Config
+  } else {
+    const module = await import(configPath)
+    return module.default as Config
+  }
 }
