@@ -1,6 +1,6 @@
 # Translation Cleaner
 
-`translation-cleaner` is a tool designed to help developers manage and clean up unused translation keys in their localization files. This utility ensures that your translation files remain clean and free from unused keys, making your localization process more efficient.
+`unused-i18n` is a tool designed to help developers manage and clean up unused translation keys in their localization files. This utility ensures that your translation files remain clean and free from unused keys, making your localization process more efficient.
 
 ## Features
 
@@ -11,22 +11,22 @@
 
 ## Installation
 
-You can install `translation-cleaner` via npm:
+You can install `unused-i18n` via npm:
 
 ```sh
-npm install -g translation-cleaner
+npm install -g unused-i18n
 
 or
 
-npm install -D translation-cleaner
+npm install -D unused-i18n
 ```
 
 ## Configuration
 
-Create a translation-cleaner.config.json, translation-cleaner.config.js, or translation-cleaner.config.ts file in the root of your project. Here's an example configuration:
+Create a unused-i18n.config.json, unused-i18n.config.js, or unused-i18n.config.ts file in the root of your project. Here's an example configuration:
 
 ```ts
-import type { Config } from 'translation-cleaner'
+import type { Config } from 'unused-i18n'
 
 const config = {
   paths: [
@@ -60,10 +60,10 @@ export default config
 
 ### Using with Config File
 
-To use translation-cleaner with your config file, simply run:
+To use unused-i18n with your config file, simply run:
 
 ```sh
-npx translation-cleaner display
+npx unused-i18n display
 ```
 
 ### Using with Command Line Options
@@ -73,13 +73,13 @@ You can also specify the source and local paths directly in the command line:
 ##### Display Unused Translations
 
 ```sh
-npx translation-cleaner display --srcPath="src/folders/bla" --localPath="src/folders/bla/locales"
+npx unused-i18n display --srcPath="src/folders/bla" --localPath="src/folders/bla/locales"
 ```
 
 ##### Remove Unused Translations
 
 ```sh
-npx translation-cleaner remove --srcPath="src/folders/bla" --localPath="src/folders/bla/locales"
+npx unused-i18n remove --srcPath="src/folders/bla" --localPath="src/folders/bla/locales"
 ```
 
 ## API

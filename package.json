@@ -1,13 +1,17 @@
 {
-  "name": "translation-cleaner",
-  "version": "0.1.4",
+  "name": "unused-i18n",
+  "version": "0.1.5",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lawndlwd/unused-i18n.git"
+  },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "translation-cleaner": "dist/cli.cjs"
+    "unused-i18n": "dist/cli.cjs"
   },
   "scripts": {
     "build": "rollup -c",
