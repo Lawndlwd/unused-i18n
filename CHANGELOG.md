@@ -1,5 +1,11 @@
 # @lawndlwd/unused-i18n
 
+## 0.1.11
+
+### Patch Changes
+
+- 6ed65fc: fix github workflow
+
 ## 0.1.10
 
 ### Patch Changes
