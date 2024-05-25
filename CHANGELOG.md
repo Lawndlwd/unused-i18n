@@ -1,5 +1,11 @@
 # unused-i18n
 
+## 0.1.15
+
+### Patch Changes
+
+- ed900cd: fix workflow
+
 ## 0.1.14
 
 ### Patch Changes
