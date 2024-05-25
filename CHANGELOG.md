@@ -1,4 +1,4 @@
-# @lawndlwd/unused-i18n
+# unused-i18n
 
 ## 0.1.12
 
