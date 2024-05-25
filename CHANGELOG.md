@@ -1,5 +1,12 @@
 # unused-i18n
 
+## 0.1.13
+
+### Patch Changes
+
+- 47ebb4f: fix github workflow
+- 47ebb4f: fix repo name
+
 ## 0.1.12
 
 ### Patch Changes
