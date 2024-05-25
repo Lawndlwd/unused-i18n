@@ -25,6 +25,7 @@ jobs:
       - uses: pnpm/action-setup@v4.0.0
         with:
           version: 9.1.1
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
@@ -33,19 +34,22 @@ jobs:
 
       - run: pnpm install
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: Bump Version and Create Release Pull Request
         id: changesets
         uses: changesets/action@v1
         with:
           commit: 'chore: release'
           title: 'chore: release'
-          publish: pnpm publish --access public
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Push changes and tags
         run: |
           git push --follow-tags origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
+        run: pnpm publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
