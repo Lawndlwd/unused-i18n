@@ -39,15 +39,10 @@ jobs:
         with:
           commit: 'chore: release'
           title: 'chore: release'
-          publish: false
+          publish: pnpm publish --access public
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to npm
-        if: steps.changesets.outputs.published == 'true'
-        run: pnpm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Push changes and tags
         run: |
