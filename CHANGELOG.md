@@ -1,5 +1,13 @@
 # unused-i18n
 
+## 0.1.23
+
+### Patch Changes
+
+- b2902db: fix dist folder not encluded
+- b2902db: fix bug on release
+- b2902db: fix changeset
+
 ## 0.1.22
 
 ### Patch Changes
