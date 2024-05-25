@@ -1,6 +1,6 @@
 {
   "name": "unused-i18n",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "license": "MIT",
   "type": "module",
   "release": {
@@ -19,6 +19,7 @@
   },
   "scripts": {
     "build": "rollup -c",
+    "typecheck": "tsc --noEmit",
     "start": "ts-node src/index.ts",
     "test": "vitest",
     "coverage": "vitest run --coverage"
