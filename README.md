@@ -23,7 +23,7 @@ npm install -D unused-i18n
 
 ## Configuration
 
-Create a unused-i18n.config.json, unused-i18n.config.js, or unused-i18n.config.ts file in the root of your project. Here's an example configuration:
+Create a unused-i18n.config.json or unused-i18n.config.js file in the root of your project. Here's an example configuration:
 
 ```ts
 import type { Config } from 'unused-i18n'

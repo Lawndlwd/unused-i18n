@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { Config } from '../types/config'
 
-const supportedExtensions = ['.json', '.js', '.ts', '.cjs']
+const supportedExtensions = ['.json', '.js', '.cjs']
 
 export const loadConfig = async (): Promise<Config> => {
   const cwd = process.cwd()
