@@ -1,4 +1,4 @@
-# Translation Cleaner
+# Unused i18n
 
 `unused-i18n` is a tool designed to help developers manage and clean up unused translation keys in their localization files. This utility ensures that your translation files remain clean and free from unused keys, making your localization process more efficient.
 
