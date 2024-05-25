@@ -18,7 +18,7 @@ export const loadConfig = async (): Promise<Config> => {
 
   if (!configPath) {
     throw new Error(
-      'Configuration file unused-i18n.config not found. Supported extensions: .json, .js, .ts, .cjs.'
+      'Configuration file unused-i18n.config not found. Supported extensions: .json, .js, .cjs.'
     )
   }
 

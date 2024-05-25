@@ -1,8 +1,13 @@
 {
   "name": "unused-i18n",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "license": "MIT",
   "type": "module",
+  "release": {
+    "branches": [
+      "main"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Lawndlwd/unused-i18n.git"
@@ -14,6 +19,7 @@
   },
   "scripts": {
     "build": "rollup -c",
+    "typecheck": "tsc --noEmit",
     "start": "ts-node src/index.ts",
     "test": "vitest",
     "coverage": "vitest run --coverage"
@@ -32,9 +38,14 @@
     "@vitest/coverage-istanbul": "^1.6.0",
     "rollup": "^4.18.0",
     "rollup-plugin-dts": "^6.1.1",
-    "ts-node": "^9.1.1",
     "rollup-plugin-filesize": "^10.0.0",
+    "ts-node": "^9.1.1",
+    "tslib": "^2.6.2",
     "typescript": "^4.9.5",
     "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.x",
+    "pnpm": ">=9.x"
   }
 }
