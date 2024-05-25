@@ -1,5 +1,13 @@
 # unused-i18n
 
+## 0.1.21
+
+### Patch Changes
+
+- ba39e73: fix bug on release
+- 9c1b932: Create GitHub Release
+- 9c1b932: fix github workflow
+
 ## 0.1.20
 
 ### Patch Changes
