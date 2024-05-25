@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { getMissingTranslations } from './missingTranslations'
-import { shouldExclude } from './shouldExclude'
+import { getMissingTranslations } from '../../src/utils/missingTranslations'
+import { shouldExclude } from '../../src/utils/shouldExclude'
 
-vi.mock('./shouldExclude')
+vi.mock('../../src/utils/shouldExclude')
 
 describe('getMissingTranslations', () => {
   it('should return missing translations', () => {
@@ -21,14 +21,13 @@ describe('getMissingTranslations', () => {
 
     const excludeKey: string[] = []
 
-    // @ts-expect-error mockReturnValue not availble
-    shouldExclude.mockReturnValue(false)
+    vi.mocked(shouldExclude).mockReturnValue(false)
 
-    const result = getMissingTranslations(
+    const result = getMissingTranslations({
       localLines,
       extractedTranslations,
-      excludeKey
-    )
+      excludeKey,
+    })
 
     const expected = ['billing.back.organization.dsds']
 
@@ -50,13 +49,15 @@ describe('getMissingTranslations', () => {
 
     const excludeKey = ['dsds']
     // @ts-expect-error mockReturnValue not availble
-    shouldExclude.mockImplementation((line, keys) => keys.includes(line))
+    shouldExclude.mockImplementation(({ line, excludeKey: keys }) =>
+      keys.includes(line)
+    )
 
-    const result = getMissingTranslations(
+    const result = getMissingTranslations({
       localLines,
       extractedTranslations,
-      excludeKey
-    )
+      excludeKey,
+    })
 
     const expected = ['billing.back.organization.dsds']
 

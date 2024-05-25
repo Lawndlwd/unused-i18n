@@ -1,12 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
-import { searchFilesWithPattern } from '.'
+import { searchFilesRecursively } from '../../src/lib/search'
 import * as fs from 'fs'
 import * as path from 'path'
 
-// Mock file system operations
 vi.mock('fs')
 
-describe('searchFilesWithPattern', () => {
+describe('searchFilesRecursively', () => {
   it('should find files where content matches the regex pattern', () => {
     const baseDir = 'testDir'
     const regex = /use-i18n/
@@ -34,19 +33,22 @@ describe('searchFilesWithPattern', () => {
       }),
     }
 
+    vi.mocked(fs.readFileSync).mockImplementation(fsMock.readFileSync)
     // @ts-expect-error mockImplementation no function
-    fs.readdirSync.mockImplementation(fsMock.readdirSync)
+    vi.mocked(fs.lstatSync).mockImplementation(fsMock.lstatSync)
     // @ts-expect-error mockImplementation no function
-    fs.lstatSync.mockImplementation(fsMock.lstatSync)
-    // @ts-expect-error mockImplementation no function
-    fs.readFileSync.mockImplementation(fsMock.readFileSync)
+    vi.mocked(fs.readdirSync).mockImplementation(fsMock.readdirSync)
 
     const expected = [
       path.join(baseDir, 'file1.js'),
       path.join(baseDir, 'subdir', 'file3.js'),
     ]
 
-    const result = searchFilesWithPattern(baseDir, regex)
+    const result = searchFilesRecursively({
+      baseDir,
+      regex,
+      excludePatterns: [],
+    })
 
     expect(result).toEqual(expect.arrayContaining(expected))
     expect(expected).toEqual(expect.arrayContaining(result))

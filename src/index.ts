@@ -1,30 +1,50 @@
 import * as fs from 'fs'
 import { loadConfig } from './utils/loadConfig'
-import { searchFilesWithPattern } from './core/search'
-import { extractTranslations } from './core/extract'
-import { removeLocaleKeys } from './core/remove'
-import chalk from 'chalk'
-import boxen from 'boxen'
+import c from 'ansi-colors'
 import { getMissingTranslations } from './utils/missingTranslations'
+import { summary } from './utils/summary'
+import { searchFilesRecursively } from './lib/search'
+import { analyze } from './lib/analyze'
+import { removeLocaleKeys } from './lib/remove'
+import { ProcessTranslationsArgs } from './types/types'
 
-export const processTranslations = () => {
-  const config = loadConfig()
+export const processTranslations = async ({
+  paths,
+  action,
+}: ProcessTranslationsArgs) => {
+  const config = await loadConfig()
   const excludePatterns = [/\.test\./, /__mock__/]
   const localesExtensions = config.localesExtensions ?? 'js'
   const localesNames = config.localesNames ?? 'en'
-  config.paths.forEach(({ srcPath, localPath }) => {
+
+  let totalUnusedLocales = 0
+  const unusedLocalesCountByPath: {
+    path: string
+    messages?: string
+    warning?: string
+  }[] = []
+
+  const pathsToProcess = paths || config.paths
+
+  pathsToProcess.forEach(({ srcPath, localPath }) => {
     let allExtractedTranslations: string[] = []
+    let pathUnusedLocalesCount = 0
 
     srcPath.forEach((pathEntry) => {
-      if (config.ignorePaths && config.ignorePaths?.includes(pathEntry)) return
-      const files = searchFilesWithPattern(
-        pathEntry,
-        /use-i18n/,
-        excludePatterns
-      )
+      if (config.ignorePaths && config.ignorePaths.includes(pathEntry)) return
+      const files = searchFilesRecursively({
+        excludePatterns,
+        regex: /use-i18n/,
+        baseDir: pathEntry,
+      })
 
       const extractedTranslations = files
-        .flatMap((file) => extractTranslations(file, config.scopedNames))
+        .flatMap((file) =>
+          analyze({
+            filePath: file,
+            scopedNames: config.scopedNames,
+          })
+        )
         .sort()
         .filter((item, index, array) => array.indexOf(item) === index)
 
@@ -38,6 +58,8 @@ export const processTranslations = () => {
 
     const localeFilePath = `${localPath}/${localesNames}.${localesExtensions}`
     if (fs.existsSync(localeFilePath)) {
+      console.log(`${localeFilePath}...`)
+
       const localLines = fs
         .readFileSync(localeFilePath, 'utf-8')
         .split('\n')
@@ -46,38 +68,45 @@ export const processTranslations = () => {
         .map((line) => line.match(/'([^']+)':/)?.[1] ?? '')
         .sort()
 
-      const missingTranslations = getMissingTranslations(
+      const missingTranslations = getMissingTranslations({
         localLines,
-        allExtractedTranslations,
-        config.excludeKey
-      )
+        extractedTranslations: allExtractedTranslations,
+        excludeKey: config.excludeKey,
+      })
+
+      pathUnusedLocalesCount = missingTranslations.length
+      totalUnusedLocales += pathUnusedLocalesCount
 
       const formattedMissingTranslations = missingTranslations
-        .map((translation) => chalk.red(`  ${translation}`))
+        .map((translation) => c.red(`  ${translation}`))
         .join('\n')
 
       const message = missingTranslations.length
-        ? `Missing translations for ${chalk.yellow(
-            localeFilePath
-          )}:\n${formattedMissingTranslations}`
-        : chalk.green(
-            `No missing translations for ${chalk.yellow(localeFilePath)}`
-          )
-
-      // Display the message in a box
-      console.log(
-        boxen(message, {
-          padding: 1,
-          margin: 1,
-          borderStyle: 'double',
-          borderColor: 'yellow',
-        })
-      )
+        ? `Missing translations for ${c.yellow(localeFilePath)}: ${c.red(
+            `${pathUnusedLocalesCount}`
+          )}   \n${formattedMissingTranslations}`
+        : c.green(`No missing translations for ${c.yellow(localeFilePath)}`)
+      unusedLocalesCountByPath.push({
+        path: localPath,
+        messages: message,
+      })
 
       // Remove the unused locale keys
-      removeLocaleKeys(localeFilePath, missingTranslations)
+      action === 'remove'
+        ? removeLocaleKeys({
+            localePath: localeFilePath,
+            missingTranslations: missingTranslations,
+          })
+        : null
     } else {
-      console.warn(chalk.red(`Locale file not found: ${localeFilePath}`))
+      const warningMessage = c.red(`Locale file not found: ${localeFilePath}`)
+
+      unusedLocalesCountByPath.push({
+        path: localPath,
+        warning: warningMessage,
+      })
     }
   })
+
+  summary({ unusedLocalesCountByPath, totalUnusedLocales })
 }

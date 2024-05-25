@@ -2,16 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { processTranslations } from '../src'
 import * as fs from 'fs'
 import { loadConfig } from '../src/utils/loadConfig'
-import { searchFilesWithPattern } from '../src/core/search'
-import { extractTranslations } from '../src/core/extract'
+import { searchFilesRecursively } from '../src/lib/search'
+import { analyze } from '../src/lib/analyze'
 import { shouldExclude } from '../src/utils/shouldExclude'
 
 // Mock dependencies
 vi.mock('fs')
-vi.mock('./utils/loadConfig')
-vi.mock('./core/search')
+vi.mock('../src/utils/loadConfig')
+vi.mock('../src/lib/search')
 vi.mock('./core/extract')
-vi.mock('./utils/shouldExclude')
+vi.mock('../src/lib/analyze')
+vi.mock('../src/utils/shouldExclude')
 
 describe('processTranslations', () => {
   beforeEach(() => {
@@ -30,7 +31,7 @@ describe('processTranslations', () => {
       scopedNames: ['scopedT'],
       localesExtensions: 'js',
       localesNames: 'en',
-      ignorePaths: 'folder/file.js',
+      ignorePaths: ['folder/file.js'],
     }
 
     const files = ['file1.js', 'folder/file.js']
@@ -51,20 +52,13 @@ export default {
 } as const
     `.trim()
 
-    // @ts-expect-error mockReturnValue not availble
-    loadConfig.mockReturnValue(config)
-    // @ts-expect-error mockReturnValue not availble
-    searchFilesWithPattern.mockReturnValue(files)
-    // @ts-expect-error mockReturnValue not availble
-    extractTranslations.mockReturnValue(extractedTranslations)
-    // @ts-expect-error mockReturnValue not availble
-    fs.existsSync.mockReturnValue(true)
-    // @ts-expect-error mockReturnValue not availble
-    fs.readFileSync.mockReturnValue(localeContent)
-    // @ts-expect-error mockReturnValue not availble
-    shouldExclude.mockReturnValue(false)
-    // @ts-expect-error mockReturnValue not availble
-    fs.writeFileSync.mockImplementation(vi.fn())
+    vi.mocked(loadConfig).mockReturnValue(config)
+    vi.mocked(searchFilesRecursively).mockReturnValue(files)
+    vi.mocked(analyze).mockReturnValue(extractedTranslations)
+    vi.mocked(shouldExclude).mockReturnValue(false)
+    vi.mocked(fs.existsSync).mockReturnValue(true)
+    vi.mocked(fs.readFileSync).mockReturnValue(localeContent)
+    vi.mocked(fs.writeFileSync).mockImplementation(vi.fn())
 
     processTranslations()
 

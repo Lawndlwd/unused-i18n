@@ -1,12 +1,13 @@
+import { GetMissingTranslationsArgs } from '../types/types'
 import { shouldExclude } from './shouldExclude'
 
-export const getMissingTranslations = (
-  localLines: string[],
-  extractedTranslations: string[],
-  excludeKey: string | string[] | undefined
-): string[] => {
+export const getMissingTranslations = ({
+  localLines,
+  excludeKey,
+  extractedTranslations,
+}: GetMissingTranslationsArgs): string[] => {
   return localLines.filter((line) => {
-    if (shouldExclude(line, excludeKey)) {
+    if (shouldExclude({ line, excludeKey })) {
       return false
     }
 

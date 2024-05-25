@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { extractNormalTs } from '.'
+import { extractGlobalT } from '../../../src/lib/global/extractGlobalT'
 
-describe('extractNormalTs', () => {
+describe('extractGlobalT', () => {
   it('should extract scoped translations correctly', () => {
     const fileContent = `
         {keyLabel ?? t('namespace.labelKey1')}
@@ -28,7 +28,7 @@ describe('extractNormalTs', () => {
       'labelKey13',
       'labelKey14',
     ]
-    const result = extractNormalTs(fileContent)
+    const result = extractGlobalT({ fileContent })
 
     expect(result).toEqual(expect.arrayContaining(expected))
     expect(expected).toEqual(expect.arrayContaining(result))

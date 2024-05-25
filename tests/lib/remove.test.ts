@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { removeLocaleKeys } from '.'
+import { removeLocaleKeys } from '../../src/lib/remove'
 import * as fs from 'fs'
 
 // Mock file system operations
@@ -8,7 +8,7 @@ vi.mock('fs')
 describe('removeLocaleKeys', () => {
   it('should remove specified locale keys from the file', () => {
     const localePath = 'path/to/locale/en.js'
-    const keysToRemove = ['key1', 'key4', 'key2']
+    const missingTranslations = ['key1', 'key4', 'key2']
 
     const fileContent = `export default {
   'key1': 'value1',
@@ -30,12 +30,10 @@ export default {
       writeFileSync: vi.fn(),
     }
 
-    // @ts-expect-error mockImplementation no function
-    fs.readFileSync.mockImplementation(fsMock.readFileSync)
-    // @ts-expect-error mockImplementation no function
-    fs.writeFileSync.mockImplementation(fsMock.writeFileSync)
+    vi.mocked(fs.readFileSync).mockImplementation(fsMock.readFileSync)
+    vi.mocked(fs.writeFileSync).mockImplementation(fsMock.writeFileSync)
 
-    removeLocaleKeys(localePath, keysToRemove)
+    removeLocaleKeys({ localePath, missingTranslations })
 
     expect(fs.readFileSync).toHaveBeenCalledWith(localePath, 'utf-8')
     expect(fs.writeFileSync).toHaveBeenCalledWith(
@@ -46,7 +44,7 @@ export default {
   })
   it('should remove specified locale keys from the file on multi line', () => {
     const localePath = 'path/to/locale/en.js'
-    const keysToRemove = ['key1', 'key5']
+    const missingTranslations = ['key1', 'key5']
 
     const fileContent = `export default {
   'key1': 'value1',
@@ -75,7 +73,7 @@ export default {
     // @ts-expect-error mockImplementation no function
     fs.writeFileSync.mockImplementation(fsMock.writeFileSync)
 
-    removeLocaleKeys(localePath, keysToRemove)
+    removeLocaleKeys({ localePath, missingTranslations })
 
     expect(fs.readFileSync).toHaveBeenCalledWith(localePath, 'utf-8')
     expect(fs.writeFileSync).toHaveBeenCalledWith(

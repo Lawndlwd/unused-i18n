@@ -1,7 +1,9 @@
-export const shouldExclude = (
-  line: string,
-  excludeKey?: string | string[]
-): boolean => {
+import { ShouldExcludeArgs } from '../types/types'
+
+export const shouldExclude = ({
+  excludeKey,
+  line,
+}: ShouldExcludeArgs): boolean => {
   if (!excludeKey) return false
   if (typeof excludeKey === 'string') {
     return line.includes(excludeKey)

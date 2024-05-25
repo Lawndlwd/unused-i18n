@@ -1,9 +1,10 @@
 import * as fs from 'fs'
+import { RemoveLocaleKeysArgs } from '../types/types'
 
-export const removeLocaleKeys = (
-  localePath: string,
-  keysToRemove: string[]
-) => {
+export const removeLocaleKeys = ({
+  localePath,
+  missingTranslations,
+}: RemoveLocaleKeysArgs) => {
   const localeContent = fs.readFileSync(localePath, 'utf-8').split('\n')
   let removeNextLine = -1
 
@@ -12,7 +13,7 @@ export const removeLocaleKeys = (
       const match = line.match(/^\s*'([^']+)':/)
       if (match) {
         const key = match[1]
-        if (keysToRemove.includes(key)) {
+        if (missingTranslations.includes(key)) {
           if (line.trim().endsWith('} as const')) {
             acc.push(line)
           }
