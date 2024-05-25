@@ -52,12 +52,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push tag
+        if: steps.changesets.outputs.hasChangesets == 'false'
         run: |
           git push --follow-tags origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
+        if: steps.changesets.outputs.hasChangesets == 'false'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
