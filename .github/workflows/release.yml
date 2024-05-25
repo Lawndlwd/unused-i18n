@@ -44,12 +44,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changes and tags
+        if: steps.changesets.outputs.hasChangesets == 'false'
         run: |
           git push --follow-tags origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to npm
+        if: steps.changesets.outputs.hasChangesets == 'false'
         run: pnpm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
