@@ -1,5 +1,11 @@
 # unused-i18n
 
+## 0.1.18
+
+### Patch Changes
+
+- 9ad0cbe: fix workflow
+
 ## 0.1.17
 
 ### Patch Changes
