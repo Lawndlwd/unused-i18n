@@ -1,5 +1,12 @@
 # unused-i18n
 
+## 0.1.22
+
+### Patch Changes
+
+- 51b0769: fix bug on release
+- 51b0769: fix changeset
+
 ## 0.1.21
 
 ### Patch Changes
