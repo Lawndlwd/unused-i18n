@@ -1,5 +1,11 @@
 # unused-i18n
 
+## 0.1.20
+
+### Patch Changes
+
+- a3c24b7: fix github workflow
+
 ## 0.1.19
 
 ### Patch Changes
