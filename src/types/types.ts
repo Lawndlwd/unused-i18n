@@ -1,4 +1,4 @@
-export type UnusedLocalesCountByPath = {
+type UnusedLocalesCountByPath = {
   path: string
   messages?: string
   warning?: string
