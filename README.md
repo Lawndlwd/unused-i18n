@@ -17,7 +17,7 @@ You can install `translation-cleaner` via npm:
 npm install -g translation-cleaner
 ```
 
-OR
+Or pnpm
 
 ```sh
 pnpm install -g translation-cleaner
@@ -57,13 +57,13 @@ npx translation-cleaner
 
 You can also specify the source and local paths directly in the command line:
 
-#### Display Unused Translations
+##### Display Unused Translations
 
 ```sh
 npx translation-cleaner display --srcPath="src/folders/bla" --localPath="src/folders/bla/locales"
 ```
 
-#### Remove Unused Translations
+##### Remove Unused Translations
 
 ```sh
 npx translation-cleaner remove --srcPath="src/folders/bla" --localPath="src/folders/bla/locales"
@@ -77,9 +77,9 @@ Processes translations based on the specified paths and action.
 - paths: Array of objects containing srcPath and localPath.
 - action: Action to perform, either 'display' or 'remove'.
 
-### Development
+## Development
 
-#### Building the Project
+### Building the Project
 
 To build the project, run:
 
@@ -95,7 +95,7 @@ To run the tests, use:
 npm run test
 ```
 
-### License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
@@ -104,10 +104,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 Contributions are welcome! Please open an issue or submit a pull request if you have any improvements or suggestions.
 
 Acknowledgements
-Rollup - Module bundler used in this project.
-TypeScript - Typed JavaScript used in this project.
-Vitest - Testing framework used in this project.
 
-```text
-Feel free to adjust the content according to your specific needs and additional details.
-```
+- [Rollup](https://rollupjs.org/) - Module bundler used in this project.
+- [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript used in this project.
+- [Vitest](https://vitest.dev/guide/cli) - Testing framework used in this project.
