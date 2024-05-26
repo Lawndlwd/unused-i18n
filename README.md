@@ -1,6 +1,6 @@
 # Unused i18n
 
-`unused-i18n` is a tool designed to help developers manage and clean up unused translation keys in their localization files. This utility ensures that your translation files remain clean and free from unused keys, making your localization process more efficient.
+simplifies managing and cleaning up unused translation keys in localization files
 
 ## Features
 
@@ -110,7 +110,7 @@ npm run test
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/Lawndlwd/unused-i18n/blob/HEAD/LICENSE) file for details.
 
 ## Contributing
 
