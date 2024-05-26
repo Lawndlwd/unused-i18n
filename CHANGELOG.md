@@ -1,5 +1,14 @@
 # unused-i18n
 
+## 0.1.24
+
+### Patch Changes
+
+- f7ee4b5: fix dist folder not encluded
+- f7ee4b5: fix bug on release
+- f7ee4b5: replace color library by native color to console log
+- f7ee4b5: fix changeset
+
 ## 0.1.23
 
 ### Patch Changes
