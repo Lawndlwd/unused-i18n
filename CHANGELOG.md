@@ -1,5 +1,11 @@
 # unused-i18n
 
+## 0.1.25
+
+### Patch Changes
+
+- bc0502d: fix Read me file
+
 ## 0.1.24
 
 ### Patch Changes
