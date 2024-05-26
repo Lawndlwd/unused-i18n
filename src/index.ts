@@ -1,6 +1,5 @@
 import * as fs from 'fs'
 import { loadConfig } from './utils/loadConfig'
-import c from 'ansi-colors'
 import { getMissingTranslations } from './utils/missingTranslations'
 import { summary } from './utils/summary'
 import { searchFilesRecursively } from './lib/search'
@@ -80,14 +79,13 @@ export const processTranslations = async ({
       totalUnusedLocales += pathUnusedLocalesCount
 
       const formattedMissingTranslations = missingTranslations
-        .map((translation) => c.red(`  ${translation}`))
+        .map((translation) => `\x1b[31m${translation}\x1b[0m`)
         .join('\n')
 
       const message = missingTranslations.length
-        ? `Missing translations for ${c.yellow(localeFilePath)}: ${c.red(
-            `${pathUnusedLocalesCount}`
-          )}   \n${formattedMissingTranslations}`
-        : c.green(`No missing translations for ${c.yellow(localeFilePath)}`)
+        ? `Missing translations for \x1b[33m${localeFilePath}\x1b[0m : \x1b[31m${pathUnusedLocalesCount}   \n${formattedMissingTranslations}\x1b[0m`
+        : `\x1b[32mNo missing translations for \x1b[33m${localeFilePath}\x1b[0m\x1b[0m`
+
       unusedLocalesCountByPath.push({
         path: localPath,
         messages: message,
@@ -101,7 +99,7 @@ export const processTranslations = async ({
           })
         : null
     } else {
-      const warningMessage = c.red(`Locale file not found: ${localeFilePath}`)
+      const warningMessage = `\x1b[31mLocale file not found: ${localeFilePath}\x1b[0m`
 
       unusedLocalesCountByPath.push({
         path: localPath,
@@ -111,5 +109,9 @@ export const processTranslations = async ({
   })
   const endTime = performance.now()
   summary({ unusedLocalesCountByPath, totalUnusedLocales })
-  console.log(c.dim(`Duration   : ${(endTime - startTime).toFixed(0)}ms`))
+  console.log(
+    `\x1b[38;2;128;128;128mDuration   : ${(endTime - startTime).toFixed(
+      0
+    )}ms\x1b[0m`
+  )
 }
