@@ -6,7 +6,10 @@ const external = (id: string) => {
     id.endsWith('fs') ||
     id.endsWith('path') ||
     id.endsWith('perf_hooks') ||
+<<<<<<< HEAD
      id.endsWith('process') ||
+=======
+>>>>>>> d30ed17 (fix: build setup with vite)
     id.endsWith('commander')
   ) {
     return true
