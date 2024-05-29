@@ -1,5 +1,11 @@
 # unused-i18n
 
+## 0.1.26
+
+### Patch Changes
+
+- f6a612e: fix Read me file
+
 ## 0.1.25
 
 ### Patch Changes
