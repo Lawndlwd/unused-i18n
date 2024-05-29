@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { Config } from '../types/config'
+import { Config } from '../types'
 
 const supportedExtensions = ['.json', '.js', '.cjs']
 

@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { SearchFilesRecursivelyArgs } from '../types/types'
+import { SearchFilesRecursivelyArgs } from '../types'
 
 export const searchFilesRecursively = ({
   baseDir,

@@ -1,4 +1,4 @@
-import { ShouldExcludeArgs } from '../types/types'
+import { ShouldExcludeArgs } from '../types'
 
 export const shouldExclude = ({
   excludeKey,

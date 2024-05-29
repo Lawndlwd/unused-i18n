@@ -15,15 +15,16 @@
     "type": "git",
     "url": "https://github.com/Lawndlwd/unused-i18n.git"
   },
-  "main": "dist/index.cjs",
+  "main": "dist/cli.cjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "unused-i18n": "dist/index.cjs"
+    "unused-i18n": "dist/cli.cjs"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "vite build --config vite.config.ts && pnpm run type:generate",
+    "type:generate": "tsc --declaration -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "start": "ts-node src/index.ts",
+    "start": "vite",
     "test": "vitest",
     "release": "pnpm build && pnpm changeset publish",
     "changeset": "npx changeset",
@@ -35,20 +36,12 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.3",
-    "@rollup/plugin-commonjs": "^25.0.8",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.6",
     "@types/node": "^14.18.63",
     "@vitest/coverage-c8": "^0.33.0",
     "@vitest/coverage-istanbul": "^1.6.0",
-    "rollup": "^4.18.0",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-filesize": "^10.0.0",
-    "ts-node": "^9.1.1",
-    "tslib": "^2.6.2",
-    "typescript": "^4.9.5",
-    "vitest": "^1.6.0"
+    "typescript": "^5.2.2",
+    "vitest": "^1.6.0",
+    "vite": "^5.2.0"
   },
   "keywords": [
     "i18n",
@@ -62,6 +55,6 @@
   ],
   "engines": {
     "node": ">=18.x",
-    "pnpm": ">=9.x"
+    "pnpm": ">=8.x"
   }
 }

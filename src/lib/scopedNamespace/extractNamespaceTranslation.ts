@@ -1,4 +1,4 @@
-import { ExtractTranslationArgs } from '../../types/types'
+import { ExtractTranslationArgs } from '../../types'
 
 export const extractNamespaceTranslation = ({
   fileContent,

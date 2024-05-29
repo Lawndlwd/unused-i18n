@@ -1,4 +1,4 @@
-import { ExtractScopedTsArgs } from '../../types/types'
+import { ExtractScopedTsArgs } from '../../types'
 
 export const extractScopedTs = ({
   scopedName,

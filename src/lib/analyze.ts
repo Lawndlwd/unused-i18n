@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import { extractNamespaceTranslation } from './scopedNamespace/extractNamespaceTranslation'
 import { extractScopedTs } from './scopedNamespace/extractScopedTs'
 import { extractGlobalT } from './global/extractGlobalT'
-import { AnalyzeArgs } from '../types/types'
+import { AnalyzeArgs } from '../types'
 
 export const analyze = ({ filePath, scopedNames }: AnalyzeArgs): string[] => {
   const fileContent = fs.readFileSync(filePath, 'utf-8')
