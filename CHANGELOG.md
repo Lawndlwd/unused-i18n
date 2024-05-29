@@ -1,5 +1,12 @@
 # unused-i18n
 
+## 0.1.27
+
+### Patch Changes
+
+- 0993447: fix Read me file
+- 0993447: build setup with vite
+
 ## 0.1.26
 
 ### Patch Changes
