@@ -1,6 +1,6 @@
 # Unused i18n
 
-simplifies managing and cleaning up unused translation keys in localization files
+Simplifies managing and cleaning up unused translation keys in localization files
 
 ## Features
 

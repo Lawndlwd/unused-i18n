@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import { RemoveLocaleKeysArgs } from '../types/types'
+import { RemoveLocaleKeysArgs } from '../types'
 
 export const removeLocaleKeys = ({
   localePath,

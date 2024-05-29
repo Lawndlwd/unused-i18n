@@ -1,4 +1,4 @@
-import { SummaryArgs } from '../types/types'
+import { SummaryArgs } from '../types'
 
 export const summary = ({
   unusedLocalesCountByPath,

@@ -1,4 +1,4 @@
-import { GetMissingTranslationsArgs } from '../types/types'
+import { GetMissingTranslationsArgs } from '../types'
 import { shouldExclude } from './shouldExclude'
 
 export const getMissingTranslations = ({

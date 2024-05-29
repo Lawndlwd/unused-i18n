@@ -5,7 +5,7 @@ import { summary } from './utils/summary'
 import { searchFilesRecursively } from './lib/search'
 import { analyze } from './lib/analyze'
 import { removeLocaleKeys } from './lib/remove'
-import { ProcessTranslationsArgs } from './types/types'
+import { ProcessTranslationsArgs } from './types'
 import { performance } from 'perf_hooks'
 
 export const processTranslations = async ({
