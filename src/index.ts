@@ -32,8 +32,8 @@ export const processTranslations = async ({
     let pathUnusedLocalesCount = 0
 
     srcPath.forEach((pathEntry) => {
-      const ignorePathExists = config.ignorePaths?.some(
-        (ignorePath) => ignorePath === pathEntry
+      const ignorePathExists = config.ignorePaths?.some((ignorePath) =>
+        pathEntry.includes(ignorePath)
       )
       if (ignorePathExists) return
       const files = searchFilesRecursively({
@@ -61,7 +61,10 @@ export const processTranslations = async ({
     allExtractedTranslations = [...new Set(allExtractedTranslations)].sort()
 
     const localeFilePath = `${localPath}/${localesNames}.${localesExtensions}`
-    if (fs.existsSync(localeFilePath)) {
+    const ignorePathExists = config.ignorePaths?.some((ignorePath) =>
+      localeFilePath.includes(ignorePath)
+    )
+    if (fs.existsSync(localeFilePath) && !ignorePathExists) {
       console.log(`${localeFilePath}...`)
 
       const localLines = fs
@@ -87,12 +90,14 @@ export const processTranslations = async ({
 
       const message = missingTranslations.length
         ? `Unused translations in \x1b[33m${localeFilePath}\x1b[0m : \x1b[31m${pathUnusedLocalesCount}   \n${formattedMissingTranslations}\x1b[0m`
-        : `\x1b[32mNo unused translations in \x1b[33m${localeFilePath}\x1b[0m\x1b[0m`
+        : undefined
 
-      unusedLocalesCountByPath.push({
-        path: localPath,
-        messages: message,
-      })
+      if (message) {
+        unusedLocalesCountByPath.push({
+          path: localPath,
+          messages: message,
+        })
+      }
 
       // Remove the unused locale keys
       action === 'remove'
@@ -101,20 +106,19 @@ export const processTranslations = async ({
             missingTranslations: missingTranslations,
           })
         : null
-    } else {
-      const warningMessage = `\x1b[31mLocale file not found: ${localeFilePath}\x1b[0m`
-
-      unusedLocalesCountByPath.push({
-        path: localPath,
-        warning: warningMessage,
-      })
     }
   })
   const endTime = performance.now()
+
   summary({ unusedLocalesCountByPath, totalUnusedLocales })
   console.log(
     `\x1b[38;2;128;128;128mDuration   : ${(endTime - startTime).toFixed(
       0
     )}ms\x1b[0m`
   )
+
+  // Check if totalUnusedLocales is greater than 0
+  if (totalUnusedLocales > 0) {
+    process.exit(1)
+  }
 }
