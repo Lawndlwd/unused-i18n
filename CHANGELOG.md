@@ -1,5 +1,11 @@
 # unused-i18n
 
+## 0.1.29
+
+### Patch Changes
+
+- 26dafa7: fix some bug
+
 ## 0.1.28
 
 ### Patch Changes
