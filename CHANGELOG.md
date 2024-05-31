@@ -1,5 +1,11 @@
 # unused-i18n
 
+## 0.1.28
+
+### Patch Changes
+
+- 6f1f435: Fix some bugs
+
 ## 0.1.27
 
 ### Patch Changes
