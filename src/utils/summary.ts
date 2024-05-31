@@ -13,7 +13,7 @@ export const summary = ({
   })
 
   console.log(`Total unused locales: \x1b[33m${totalUnusedLocales}\x1b[0m`)
-  if (unusedLocalesCountByPath.length > 1) {
+  if (unusedLocalesCountByPath.length > 0) {
     exit(1)
   }
 }
