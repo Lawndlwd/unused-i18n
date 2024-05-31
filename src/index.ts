@@ -32,7 +32,10 @@ export const processTranslations = async ({
     let pathUnusedLocalesCount = 0
 
     srcPath.forEach((pathEntry) => {
-      if (config.ignorePaths && config.ignorePaths.includes(pathEntry)) return
+      const ignorePathExists = config.ignorePaths?.some(
+        (ignorePath) => ignorePath === pathEntry
+      )
+      if (ignorePathExists) return
       const files = searchFilesRecursively({
         excludePatterns,
         regex: /use-i18n/,
@@ -83,8 +86,8 @@ export const processTranslations = async ({
         .join('\n')
 
       const message = missingTranslations.length
-        ? `Missing translations for \x1b[33m${localeFilePath}\x1b[0m : \x1b[31m${pathUnusedLocalesCount}   \n${formattedMissingTranslations}\x1b[0m`
-        : `\x1b[32mNo missing translations for \x1b[33m${localeFilePath}\x1b[0m\x1b[0m`
+        ? `Unused translations in \x1b[33m${localeFilePath}\x1b[0m : \x1b[31m${pathUnusedLocalesCount}   \n${formattedMissingTranslations}\x1b[0m`
+        : `\x1b[32mNo unused translations in \x1b[33m${localeFilePath}\x1b[0m\x1b[0m`
 
       unusedLocalesCountByPath.push({
         path: localPath,

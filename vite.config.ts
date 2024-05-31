@@ -6,6 +6,7 @@ const external = (id: string) => {
     id.endsWith('fs') ||
     id.endsWith('path') ||
     id.endsWith('perf_hooks') ||
+    id.endsWith('process') ||
     id.endsWith('commander')
   ) {
     return true
