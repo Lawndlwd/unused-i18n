@@ -7,7 +7,7 @@ Simplifies managing and cleaning up unused translation keys in localization file
 - Analyzes source files to identify used and unused translation keys.
 - Supports multiple scoped translation functions.
 - Can display or remove unused translation keys.
-- Configurable through a JSON, JS, or TS config file.
+- Configurable through a JSON, CJS, or JS config file.
 
 ## Installation
 
@@ -25,10 +25,8 @@ npm install -D unused-i18n
 
 Create a unused-i18n.config.json or unused-i18n.config.js file in the root of your project. Here's an example configuration:
 
-```ts
-import type { Config } from 'unused-i18n'
-
-const config = {
+```cjs
+module.exports = {
   paths: [
     {
       srcPath: ['src/pages/products'],
@@ -40,9 +38,7 @@ const config = {
   scopedNames: ['scopedT', 'scopedTOne'],
   ignorePaths: ['src/pages/products/ignoreThisFolder'],
   excludeKey: ['someKey'],
-} satisfies Config
-
-export default config
+}
 ```
 
 | Option              | Type             | Default | Required | Description                                                                  |
@@ -118,6 +114,7 @@ Contributions are welcome! Please open an issue or submit a pull request if you 
 
 Acknowledgements
 
-- [Rollup](https://rollupjs.org/) - Module bundler used in this project.
+- [Vite](https://vitejs.dev/) - Next Generation Frontend Tooling.
 - [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript used in this project.
 - [Vitest](https://vitest.dev/guide/cli) - Testing framework used in this project.
+- [Commander](https://github.com/tj/commander.js#readme) - Node.js command-line interfaces.
