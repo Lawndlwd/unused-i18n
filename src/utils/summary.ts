@@ -1,8 +1,5 @@
 import { SummaryArgs } from '../types'
-<<<<<<< HEAD
 import { exit } from 'process'
-=======
->>>>>>> f6a612e (fix: add vite  (#47))
 
 export const summary = ({
   unusedLocalesCountByPath,
