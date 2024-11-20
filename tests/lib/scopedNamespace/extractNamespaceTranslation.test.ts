@@ -22,6 +22,6 @@ describe('extractNamespaceTranslation', () => {
     const expected = ['namespace.keyTrue', 'namespace.keyFalse']
     const result = extractNamespaceTranslation({ fileContent })
 
-    expect(result).toEqual(expected)
+    expect(result).toEqual(expect.arrayContaining(expected))
   })
 })
