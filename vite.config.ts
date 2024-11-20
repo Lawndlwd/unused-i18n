@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import type { UserConfig } from 'vitest/config'
+import * as path from 'path';
 
 const external = (id: string) => {
   if (
@@ -7,7 +8,8 @@ const external = (id: string) => {
     id.endsWith('path') ||
     id.endsWith('perf_hooks') ||
     id.endsWith('process') ||
-    id.endsWith('commander')
+    id.endsWith('commander') ||
+    id.endsWith('esbuild')
   ) {
     return true
   }
@@ -42,6 +44,12 @@ export const defaultConfig: UserConfig = {
     coverage: {
       provider: 'istanbul',
       reporter: ['text', 'json', 'html'],
+    },
+  },
+  resolve: {
+    alias: {
+      '@utils': path.resolve(__dirname, 'src/utils'),
+      '@lib': path.resolve(__dirname, 'src/lib'),
     },
   },
 }

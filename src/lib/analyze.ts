@@ -9,10 +9,10 @@ export const analyze = ({ filePath, scopedNames }: AnalyzeArgs): string[] => {
   const namespaceTranslations = extractNamespaceTranslation({ fileContent })
 
   const scopedTs = (
-    scopedNames?.map((scopedName) =>
-      namespaceTranslations.flatMap((namespaceTranslation) =>
-        extractScopedTs({ fileContent, namespaceTranslation, scopedName })
-      )
+    scopedNames?.map(scopedName =>
+      namespaceTranslations.flatMap(namespaceTranslation =>
+        extractScopedTs({ fileContent, namespaceTranslation, scopedName }),
+      ),
     ) ?? []
   ).flat(2)
 
