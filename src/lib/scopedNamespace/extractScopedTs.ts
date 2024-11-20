@@ -8,23 +8,23 @@ export const extractScopedTs = ({
   // Patterns with the variable
   const scopedTPattern = new RegExp(
     `${scopedName}\\(\\s*['"\`']([\\s\\S]*?)['"\`']\\s*(?:,|\\))`,
-    'g'
+    'g',
   )
   const scopedTPatternWithTernary = new RegExp(
     `${scopedName}\\(\\s*([\\s\\S]+?)\\s*\\?\\s*['"\`']([^'"\\\`\n]+)['"\`']\\s*:\\s*['"\`']([^'"\\\`\n]+)['"\`'],?\\s*\\)`,
-    'gm'
+    'gm',
   )
   const scopedTPatternWithTernaryAndParams = new RegExp(
     `${scopedName}\\(\\s*([^?\n]+)\\s*\\?\\s*['"\`']([^'"\\\`]+)['"\`']\\s*:\\s*['"\`']([^'"\\\`]+)['"\`'],\\s*\\{[\\s\\S]*?\\},?\\s*\\)`,
-    'gm'
+    'gm',
   )
   const scopedTVariablePattern = new RegExp(
     `${scopedName}\\(\\s*([a-zA-Z_$][\\w.$]*)\\s*\\)`,
-    'g'
+    'g',
   )
   const scopedTTemplatePattern = new RegExp(
     `${scopedName}\\(\\s*\`([\\s\\S]*?)\`\\s*\\)`,
-    'g'
+    'g',
   )
 
   const scopedTs: Set<string> = new Set()
@@ -43,13 +43,13 @@ export const extractScopedTs = ({
       `${namespaceTranslationTrimmed}.${trueValue
         .replace(/'/g, '')
         .replace(/,/g, '')
-        .trim()}`
+        .trim()}`,
     )
     scopedTs.add(
       `${namespaceTranslationTrimmed}.${falseValue
         .replace(/'/g, '')
         .replace(/,/g, '')
-        .trim()}`
+        .trim()}`,
     )
   }
 
@@ -61,12 +61,12 @@ export const extractScopedTs = ({
     scopedTs.add(
       `${namespaceTranslationTrimmed}.${trueValue
         .replace(/'/g, '')
-        .replace(/,/g, '')}`
+        .replace(/,/g, '')}`,
     )
     scopedTs.add(
       `${namespaceTranslationTrimmed}.${falseValue
         .replace(/'/g, '')
-        .replace(/,/g, '')}`
+        .replace(/,/g, '')}`,
     )
   }
 
@@ -85,12 +85,12 @@ export const extractScopedTs = ({
         const [ifValue, elseValue] = ternary
           .split(' ? ')[1]
           .split(':')
-          .map((val) => val.trim().replace(/'/g, ''))
+          .map(val => val.trim().replace(/'/g, ''))
 
         const stringIf = `${scopedTWithNamespace.replace(fullMatch, ifValue)}`
         const stringElse = `${scopedTWithNamespace.replace(
           fullMatch,
-          elseValue
+          elseValue,
         )}`
 
         scopedTs.add(stringIf)
@@ -113,14 +113,14 @@ export const extractScopedTs = ({
   while ((match = scopedTTemplatePattern.exec(fileContent))) {
     const templateLiteral = match[1]
 
-    const dynamicParts = templateLiteral.split(/(\$\{[^}]+\})/).map((part) => {
+    const dynamicParts = templateLiteral.split(/(\$\{[^}]+\})/).map(part => {
       if (part.startsWith('${') && part.endsWith('}')) {
         return '**'
       }
       return part
     })
     const scopedTWithNamespace = `${namespaceTranslationTrimmed}.${dynamicParts.join(
-      ''
+      '',
     )}`
     scopedTs.add(scopedTWithNamespace)
   }
