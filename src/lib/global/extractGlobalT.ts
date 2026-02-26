@@ -3,11 +3,14 @@ import { ExtractTranslationArgs } from '../../types'
 export const extractGlobalT = ({
   fileContent,
 }: ExtractTranslationArgs): string[] => {
-  const tPattern = /t\(\s*['"`]([\s\S]*?)['"`]\s*(?:,|$|\))/g
+  const tPattern =
+    /\bt\(\s*(?:'([\s\S]*?)'|"([\s\S]*?)")\s*(?:,|\))/g
   const tPatternWithTernary =
-    /t\(\s*([\s\S]+?)\s*\?\s*['"`]([^'"`\n]+)['"`]\s*:\s*['"`]([^'"`\n]+)['"`]\s*\)/gm
-  const tVariablePattern = /t\(\s*([a-zA-Z_$][\w.$]*)\s*\)/g
-  const tTemplatePattern = /t\(\s*`([\s\S]*?)`\s*\)/g
+    /\bt\(\s*([\s\S]+?)\s*\?\s*(?:'([^'\n]+)'|"([^"\n]+)")\s*:\s*(?:'([^'\n]+)'|"([^"\n]+)")\s*,?\s*\)/gm
+  const tVariablePattern = /\bt\(\s*([a-zA-Z_$][\w.$]*)\s*\)/g
+  const tTemplatePattern = /\bt\(\s*`([\s\S]*?)`\s*(?:,|\))/g
+  const tTernaryTemplatePattern =
+    /\bt\(\s*[\s\S]+?\s*\?\s*`([\s\S]*?)`\s*:\s*`([\s\S]*?)`,?\s*\)/gm
 
   const normalTs: Set<string> = new Set()
 
@@ -15,15 +18,29 @@ export const extractGlobalT = ({
 
   // Handle ternary expressions within t arguments
   while ((match = tPatternWithTernary.exec(fileContent))) {
-    const trueValue = match[2]
-    const falseValue = match[3]
-    normalTs.add(trueValue.replace(/'/g, '').replace(/,/g, '').trim())
-    normalTs.add(falseValue.replace(/'/g, '').replace(/,/g, '').trim())
+    const trueValue = (match[2] ?? match[3])?.trim() ?? ''
+    const falseValue = (match[4] ?? match[5])?.trim() ?? ''
+    normalTs.add(trueValue.replace(/,/g, '').trim())
+    normalTs.add(falseValue.replace(/,/g, '').trim())
+  }
+
+  // Handle ternary expressions with template literal branches
+  while ((match = tTernaryTemplatePattern.exec(fileContent))) {
+    const branches = [match[1], match[2]]
+    for (const branch of branches) {
+      const dynamicParts = branch
+        .split(/(\$\{[^}]+\})/)
+        .map((part) => {
+          if (part.startsWith('${') && part.endsWith('}')) return '**'
+          return part
+        })
+      normalTs.add(dynamicParts.join(''))
+    }
   }
 
   // Handle regular t pattern
   while ((match = tPattern.exec(fileContent))) {
-    const translation = match[1].trim()
+    const translation = (match[1] ?? match[2]).trim()
 
     if (translation.includes('${')) {
       const ternaryPattern = /\${([^}]*\s\?\s[^}]*:[^}]*)}/
@@ -31,15 +48,19 @@ export const extractGlobalT = ({
 
       if (ternaryMatch) {
         const [fullMatch, ternary] = ternaryMatch
-        const [ifValue, elseValue] = ternary
-          .split(':')
-          .map((val) => val.trim().replace(/'/g, ''))
+        const ternaryParts =
+          /\?\s*['"]([^'"]+)['"]\s*:\s*['"]([^'"]+)['"]/.exec(ternary)
 
-        const stringIf = `${translation.replace(fullMatch, ifValue)}`
-        const stringElse = `${translation.replace(fullMatch, elseValue)}`
+        if (ternaryParts) {
+          const ifValue = ternaryParts[1]
+          const elseValue = ternaryParts[2]
 
-        normalTs.add(stringIf)
-        normalTs.add(stringElse)
+          normalTs.add(`${translation.replace(fullMatch, ifValue)}`)
+          normalTs.add(`${translation.replace(fullMatch, elseValue)}`)
+        } else {
+          // Ternary with non-quoted branches — fall through to wildcard
+          normalTs.add(`${translation.replace(/\${[^}]*}/g, '**')}`)
+        }
       } else {
         normalTs.add(`${translation.replace(/\${[^}]*}/g, '**')}`)
       }
@@ -57,13 +78,40 @@ export const extractGlobalT = ({
   while ((match = tTemplatePattern.exec(fileContent))) {
     const templateLiteral = match[1]
 
-    const dynamicParts = templateLiteral.split(/(\$\{[^}]+\})/).map((part) => {
-      if (part.startsWith('${') && part.endsWith('}')) {
-        return '**'
-      }
-      return part
-    })
+    const dynamicParts = templateLiteral
+      .split(/(\$\{[^}]+\})/)
+      .map((part) => {
+        if (part.startsWith('${') && part.endsWith('}')) {
+          return '**'
+        }
+        return part
+      })
     normalTs.add(dynamicParts.join(''))
+  }
+
+  // Fallback: detect complex expression arguments and emit wildcard
+  const tCallPattern = /\bt\(/g
+  let callMatch
+  while ((callMatch = tCallPattern.exec(fileContent))) {
+    const startIdx = callMatch.index + callMatch[0].length
+    let depth = 1
+    let i = startIdx
+    while (i < fileContent.length && depth > 0) {
+      if (fileContent[i] === '(') depth++
+      else if (fileContent[i] === ')') depth--
+      i++
+    }
+    if (depth === 0) {
+      const arg = fileContent.slice(startIdx, i - 1).trim()
+      // Skip string literals and template literals (handled by specific patterns)
+      if (/^['"`]/.test(arg)) continue
+      // Skip simple identifiers (handled by variable pattern)
+      if (/^[a-zA-Z_$][\w.$]*$/.test(arg)) continue
+      // Skip ternary expressions with string/template literal branches (handled by ternary patterns)
+      if (/\?\s*['"`]/.test(arg)) continue
+      // Complex expression — emit wildcard
+      normalTs.add('**')
+    }
   }
 
   return Array.from(normalTs)

@@ -2,3 +2,7 @@ dist
 node_modules
 .pnpm-store
 coverage
+.DS_Store
+CLAUDE.md
+tests/.DS_Store
+.claude

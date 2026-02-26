@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { analyze } from '../../src/lib/analyze'
 import * as fs from 'fs'
 vi.mock('fs')
@@ -60,5 +60,22 @@ describe('analyze', () => {
 
     expect(result).toEqual(expect.arrayContaining(expected))
     expect(expected).toEqual(expect.arrayContaining(result))
+  })
+
+  it('should extract keys using customPatterns', () => {
+    const customContent = `
+      const title = useProductHeadTitle('products.title')
+      const desc = useProductHeadTitle("products.description")
+    `
+    vi.mocked(fs.readFileSync).mockReturnValue(customContent)
+
+    const result = analyze({
+      filePath: 'path/to/test/file.js',
+      scopedNames: [],
+      customPatterns: ["useProductHeadTitle\\(['\"]([^'\"]+)['\"]"],
+    })
+
+    expect(result).toContain('products.title')
+    expect(result).toContain('products.description')
   })
 })

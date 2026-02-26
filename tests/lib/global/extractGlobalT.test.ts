@@ -15,7 +15,6 @@ describe('extractGlobalT', () => {
         })}
       `
 
-    const namespaceTranslation = 'namespace'
     const expected = [
       'labelKey4',
       'labelKey5',
@@ -32,5 +31,53 @@ describe('extractGlobalT', () => {
 
     expect(result).toEqual(expect.arrayContaining(expected))
     expect(expected).toEqual(expect.arrayContaining(result))
+  })
+
+  it('should NOT match non-t functions like sort() or import()', () => {
+    const fileContent = `
+      const sorted = items.sort('x')
+      const mod = import('module')
+      const result = t('realKey')
+    `
+    const result = extractGlobalT({ fileContent })
+
+    expect(result).toContain('realKey')
+    expect(result).not.toContain('x')
+    expect(result).not.toContain('module')
+  })
+
+  it('should match double-quoted keys', () => {
+    const fileContent = `t("doubleQuoted")`
+    const result = extractGlobalT({ fileContent })
+
+    expect(result).toContain('doubleQuoted')
+  })
+
+  it('should handle ternary with template literal branches', () => {
+    const fileContent = `
+      {t(cond ? \`policy.\${pubPolicy}\` : \`policy.\${subPolicy}\`)}
+      {t(isActive ? \`status.active\` : \`status.inactive\`)}
+    `
+    const result = extractGlobalT({ fileContent })
+
+    expect(result).toContain('policy.**')
+    expect(result).toContain('status.active')
+    expect(result).toContain('status.inactive')
+  })
+
+  it('should handle complex expression arguments with wildcard fallback', () => {
+    const fileContent = `
+      {t(toCamelCase(offer.name) as 'costOptimized' | 'productionOptimized')}
+    `
+    const result = extractGlobalT({ fileContent })
+
+    expect(result).toContain('**')
+  })
+
+  it('should NOT match mismatched quotes', () => {
+    const fileContent = `t('mismatched")`
+    const result = extractGlobalT({ fileContent })
+
+    expect(result).not.toContain('mismatched')
   })
 })
