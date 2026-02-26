@@ -7,7 +7,10 @@ Simplifies managing and cleaning up unused translation keys in localization file
 - Analyzes source files to identify used and unused translation keys.
 - Supports multiple scoped translation functions.
 - Can display or remove unused translation keys.
-- Configurable through a JSON, CJS, or JS config file.
+- Configurable through a JSON, CJS, JS, or TS config file.
+- Supports glob patterns for excluding keys.
+- Custom extraction patterns for non-standard translation functions.
+- Configurable file search patterns.
 
 ## Installation
 
@@ -23,7 +26,7 @@ npm install -D unused-i18n
 
 ## Configuration
 
-Create a unused-i18n.config.json or unused-i18n.config.js file in the root of your project. Here's an example configuration:
+Create a `unused-i18n.config.json`, `unused-i18n.config.js`, `unused-i18n.config.cjs`, or `unused-i18n.config.ts` file in the root of your project. Here's an example configuration:
 
 ```cjs
 module.exports = {
@@ -37,20 +40,50 @@ module.exports = {
   localesNames: 'en',
   scopedNames: ['scopedT', 'scopedTOne'],
   ignorePaths: ['src/pages/products/ignoreThisFolder'],
-  excludeKey: ['someKey'],
+  excludeKey: ['someKey', 'headTitle.*'],
+  prefixKeys: ['headTitle'],
+  customPatterns: ['useProductHeadTitle\\([\'"]([^\'"]+)[\'"]'],
+  filePatterns: ['use-i18n', 'namespaceTranslation'],
 }
 ```
 
-| Option              | Type             | Default | Required | Description                                                                  |
-| ------------------- | ---------------- | ------- | -------- | ---------------------------------------------------------------------------- |
-| `paths`             | Array of Objects | `[]`    | Yes      | An array of objects defining the source paths and local paths to be checked. |
-| `paths.srcPath`     | Array of Strings | `[]`    | Yes      | Source paths to search for translations.                                     |
-| `paths.localPath`   | Strings          | `""`    | Yes      | Path to the translation files.                                               |
-| `localesExtensions` | String           | `js`    | No       | Extension of the locale files.                                               |
-| `localesNames`      | String           | `en`    | No       | Name of the locale files without the extension.                              |
-| `scopedNames`       | Array of Strings | `[]`    | No       | Names of the scoped translation functions used in your project.              |
-| `ignorePaths`       | Array of Strings | `[]`    | No       | Paths to be ignored during the search.                                       |
-| `excludeKey`        | Array of Strings | `[]`    | No       | Specific translation keys to be excluded from the removal process.           |
+| Option              | Type             | Default          | Required | Description                                                                                               |
+| ------------------- | ---------------- | ---------------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| `paths`             | Array of Objects | `[]`             | Yes      | An array of objects defining the source paths and local paths to be checked.                              |
+| `paths.srcPath`     | Array of Strings | `[]`             | Yes      | Source paths to search for translations.                                                                  |
+| `paths.localPath`   | String           | `""`             | Yes      | Path to the translation files.                                                                            |
+| `localesExtensions` | String           | `"js"`           | No       | Extension of the locale files.                                                                            |
+| `localesNames`      | String           | `"en"`           | No       | Name of the locale files without the extension.                                                           |
+| `scopedNames`       | Array of Strings | `[]`             | No       | Names of the scoped translation functions used in your project.                                           |
+| `ignorePaths`       | Array of Strings | `[]`             | No       | Paths to be ignored during the search.                                                                    |
+| `excludeKey`        | String or Array  | `[]`             | No       | Keys to exclude from unused detection. Supports glob patterns (e.g. `headTitle.*` matches `headTitle.foo`). |
+| `prefixKeys`        | Array of Strings | `[]`             | No       | Key prefixes to treat as always used (e.g. `['headTitle']` marks `headTitle.clusters` as used).           |
+| `customPatterns`    | Array of Strings | `[]`             | No       | Additional regex patterns to extract translation keys from source. Must have one capture group for the key. |
+| `filePatterns`      | Array of Strings | `["use-i18n"]`   | No       | File content patterns to determine which files to scan. A file is scanned if it matches any pattern.      |
+
+### `excludeKey` glob patterns
+
+The `excludeKey` option now supports glob-style patterns:
+
+- `"someKey"` — exact match only
+- `"headTitle.*"` — matches any key starting with `headTitle.` (e.g. `headTitle.foo`, `headTitle.foo.bar`)
+
+### `customPatterns`
+
+Use `customPatterns` when you have custom helper functions that accept translation keys. Each pattern is a regex string with one capture group that extracts the key:
+
+```js
+// This pattern extracts keys from: useProductHeadTitle('some.key')
+customPatterns: ['useProductHeadTitle\\([\'"]([^\'"]+)[\'"]']
+```
+
+### `filePatterns`
+
+By default, only files containing `use-i18n` are scanned. If you have files that define key maps or use custom helpers without importing `use-i18n`, add patterns to include them:
+
+```js
+filePatterns: ['use-i18n', 'namespaceTranslation', 'useProductHeadTitle']
+```
 
 ## Usage
 
@@ -80,11 +113,21 @@ npx unused-i18n remove --srcPath="src/folders/bla" --localPath="src/folders/bla/
 
 ## API
 
-`processTranslations(paths, action)`
-Processes translations based on the specified paths and action.
+`processTranslations({ paths, action })`
 
-- paths: Array of objects containing srcPath and localPath.
-- action: Action to perform, either 'display' or 'remove'.
+Processes translations based on the specified paths and action. Returns a `Promise<number>` with the count of unused translations found.
+
+- `paths`: Optional array of objects containing `srcPath` and `localPath`. Falls back to config file paths.
+- `action`: Action to perform, either `'display'` or `'remove'`.
+
+```ts
+import { processTranslations } from 'unused-i18n'
+
+const unusedCount = await processTranslations({ action: 'display' })
+if (unusedCount > 0) {
+  process.exit(1)
+}
+```
 
 ## Development
 
@@ -93,7 +136,7 @@ Processes translations based on the specified paths and action.
 To build the project, run:
 
 ```sh
-npm run build
+pnpm run build
 ```
 
 #### Running Tests
@@ -101,7 +144,7 @@ npm run build
 To run the tests, use:
 
 ```sh
-npm run test
+pnpm run test
 ```
 
 ## License

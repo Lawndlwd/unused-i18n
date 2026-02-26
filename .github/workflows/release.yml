@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - beta
 
 jobs:
   release:
@@ -31,6 +32,11 @@ jobs:
 
       - run: pnpm install
 
+      # Check if this is a beta release
+      - name: Enter Pre-Release Mode (Beta)
+        if: github.ref == 'refs/heads/beta'
+        run: pnpm changeset pre enter beta
+
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
@@ -42,26 +48,32 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # Exit pre-release mode if in beta branch
+      - name: Exit Pre-Release Mode
+        if: github.ref == 'refs/heads/beta'
+        run: pnpm changeset pre exit
+
+      # Tag and publish stable releases
       - name: Tag
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: github.ref == 'refs/heads/main' && steps.changesets.outputs.hasChangesets == 'false'
         run: pnpm changeset tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push tag
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: github.ref == 'refs/heads/main' && steps.changesets.outputs.hasChangesets == 'false'
         run: |
           git push --follow-tags origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get tag name
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: github.ref == 'refs/heads/main' && steps.changesets.outputs.hasChangesets == 'false'
         id: get_tag_name
         run: echo "TAG_NAME=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: Create GitHub Release
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: github.ref == 'refs/heads/main' && steps.changesets.outputs.hasChangesets == 'false'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.TAG_NAME }}

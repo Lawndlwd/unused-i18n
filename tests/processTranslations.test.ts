@@ -1,27 +1,30 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { processTranslations } from '../src'
 import * as fs from 'fs'
-import { loadConfig } from '../src/utils/loadConfig'
-import { searchFilesRecursively } from '../src/lib/search'
-import { analyze } from '../src/lib/analyze'
-import { shouldExclude } from '../src/utils/shouldExclude'
+import { loadConfig } from '@utils/loadConfig'
+import { searchFilesRecursively } from '@lib/search'
+import { analyze } from '@lib/analyze'
+import { shouldExclude } from '@utils/shouldExclude'
+import { getMissingTranslations } from '@utils/missingTranslations'
 
 // Mock dependencies
 vi.mock('fs')
-vi.mock('../src/utils/loadConfig')
-vi.mock('../src/lib/search')
-vi.mock('../src/lib/remove')
-vi.mock('perf_hooks')
-vi.mock('../src/utils/missingTranslations')
-vi.mock('../src/lib/analyze')
-vi.mock('../src/utils/shouldExclude')
+vi.mock('@utils/loadConfig')
+vi.mock('@lib/search')
+vi.mock('@lib/remove')
+vi.mock('perf_hooks', () => ({
+  performance: { now: vi.fn(() => 0) },
+}))
+vi.mock('@utils/missingTranslations')
+vi.mock('@lib/analyze')
+vi.mock('@utils/shouldExclude')
 
-describe.skip('processTranslations', () => {
+describe('processTranslations', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.resetAllMocks()
   })
 
-  it('should process translations correctly', () => {
+  it('should process translations and return unused count', async () => {
     const config = {
       paths: [
         {
@@ -31,12 +34,12 @@ describe.skip('processTranslations', () => {
       ],
       excludeKey: [],
       scopedNames: ['scopedT'],
-      localesExtensions: 'js',
+      localesExtensions: 'ts',
       localesNames: 'en',
-      ignorePaths: ['folder/file.js'],
+      ignorePaths: [],
     }
 
-    const files = ['file1.js', 'folder/file.js']
+    const files = ['file1.ts']
     const extractedTranslations = ['key1', 'key2']
     const localeContent = `
 export default {
@@ -47,28 +50,78 @@ export default {
 } as const
     `.trim()
 
-    const expectedWriteContent = `
-export default {
-  'key1': 'value1',
-  'key2': 'value2',
-} as const
-    `.trim()
-
-    vi.mocked(loadConfig).mockResolvedValueOnce(config)
+    vi.mocked(loadConfig).mockResolvedValue(config)
     vi.mocked(searchFilesRecursively).mockReturnValue(files)
     vi.mocked(analyze).mockReturnValue(extractedTranslations)
     vi.mocked(shouldExclude).mockReturnValue(false)
+    vi.mocked(getMissingTranslations).mockReturnValue(['key3', 'key4'])
     vi.mocked(fs.existsSync).mockReturnValue(true)
     vi.mocked(fs.readFileSync).mockReturnValue(localeContent)
-    vi.mocked(fs.writeFileSync).mockImplementation(vi.fn())
 
-    processTranslations({ action: 'remove' })
+    const count = await processTranslations({ action: 'display' })
 
-    expect(fs.readFileSync).toHaveBeenCalledWith('localPath/en.js', 'utf-8')
-    expect(fs.writeFileSync).toHaveBeenCalledWith(
-      'localPath/en.js',
-      expectedWriteContent,
-      'utf-8'
+    expect(count).toBe(2)
+    expect(fs.readFileSync).toHaveBeenCalledWith('localPath/en.ts', 'utf-8')
+  })
+
+  it('should return 0 when no unused translations', async () => {
+    const config = {
+      paths: [
+        {
+          srcPath: ['srcPath'],
+          localPath: 'localPath',
+        },
+      ],
+      excludeKey: [],
+      scopedNames: ['scopedT'],
+      localesExtensions: 'ts',
+      localesNames: 'en',
+      ignorePaths: [],
+    }
+
+    vi.mocked(loadConfig).mockResolvedValue(config)
+    vi.mocked(searchFilesRecursively).mockReturnValue(['file1.ts'])
+    vi.mocked(analyze).mockReturnValue(['key1'])
+    vi.mocked(getMissingTranslations).mockReturnValue([])
+    vi.mocked(fs.existsSync).mockReturnValue(true)
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      `export default {\n  'key1': 'value1',\n} as const`,
     )
+
+    const count = await processTranslations({ action: 'display' })
+
+    expect(count).toBe(0)
+  })
+
+  it('should handle JSON locale files with double-quote keys', async () => {
+    const config = {
+      paths: [
+        {
+          srcPath: ['srcPath'],
+          localPath: 'localPath',
+        },
+      ],
+      excludeKey: [],
+      scopedNames: [],
+      localesExtensions: 'json',
+      localesNames: 'en',
+      ignorePaths: [],
+    }
+
+    const jsonLocaleContent = `{
+  "key1": "value1",
+  "key2": "value2"
+}`
+
+    vi.mocked(loadConfig).mockResolvedValue(config)
+    vi.mocked(searchFilesRecursively).mockReturnValue(['file1.ts'])
+    vi.mocked(analyze).mockReturnValue(['key1'])
+    vi.mocked(getMissingTranslations).mockReturnValue(['key2'])
+    vi.mocked(fs.existsSync).mockReturnValue(true)
+    vi.mocked(fs.readFileSync).mockReturnValue(jsonLocaleContent)
+
+    const count = await processTranslations({ action: 'display' })
+
+    expect(count).toBe(1)
   })
 })

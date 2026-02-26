@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import * as path from 'path'
 import { loadConfig } from '@utils/loadConfig'
 import { getMissingTranslations } from '@utils/missingTranslations'
 import { summary } from '@utils/summary'
@@ -11,7 +12,7 @@ import { performance } from 'perf_hooks'
 export const processTranslations = async ({
   paths,
   action,
-}: ProcessTranslationsArgs) => {
+}: ProcessTranslationsArgs): Promise<number> => {
   const config = await loadConfig()
   const excludePatterns = [/\.test\./, /__mock__/]
   const localesExtensions = config.localesExtensions ?? 'js'
@@ -21,48 +22,56 @@ export const processTranslations = async ({
   const unusedLocalesCountByPath: {
     path: string
     messages?: string
-    warning?: string
   }[] = []
 
   const pathsToProcess = paths || config.paths
 
+  if (!pathsToProcess?.length) {
+    console.error('No paths configured. Please check your configuration.')
+    return 0
+  }
+
+  const fileRegexes = (config.filePatterns ?? ['use-i18n']).map(
+    (p) => new RegExp(p),
+  )
+
   const startTime = performance.now()
-  pathsToProcess.forEach(({ srcPath, localPath }) => {
+  for (const { srcPath, localPath } of pathsToProcess) {
     let allExtractedTranslations: string[] = []
     let pathUnusedLocalesCount = 0
 
-    srcPath.forEach(pathEntry => {
-      const ignorePathExists = config.ignorePaths?.some(ignorePath =>
-        pathEntry.includes(ignorePath),
+    for (const pathEntry of srcPath) {
+      const resolvedPathEntry = path.resolve(pathEntry)
+      const ignorePathExists = config.ignorePaths?.some(
+        (ignorePath) => path.resolve(ignorePath) === resolvedPathEntry,
       )
-      if (ignorePathExists) return
+      if (ignorePathExists) continue
       const files = searchFilesRecursively({
         excludePatterns,
-        regex: /use-i18n/,
+        regexes: fileRegexes,
         baseDir: pathEntry,
       })
 
-      const extractedTranslations = files
-        .flatMap(file =>
-          analyze({
-            filePath: file,
-            scopedNames: config.scopedNames,
-          }),
-        )
-        .sort()
-        .filter((item, index, array) => array.indexOf(item) === index)
+      const extractedTranslations = files.flatMap((file) =>
+        analyze({
+          filePath: file,
+          scopedNames: config.scopedNames,
+          customPatterns: config.customPatterns,
+        }),
+      )
 
       allExtractedTranslations = [
         ...allExtractedTranslations,
         ...extractedTranslations,
       ]
-    })
+    }
 
     allExtractedTranslations = [...new Set(allExtractedTranslations)].sort()
 
     const localeFilePath = `${localPath}/${localesNames}.${localesExtensions}`
-    const ignorePathExists = config.ignorePaths?.some(ignorePath =>
-      localeFilePath.includes(ignorePath),
+    const resolvedLocaleFilePath = path.resolve(localeFilePath)
+    const ignorePathExists = config.ignorePaths?.some(
+      (ignorePath) => path.resolve(ignorePath) === resolvedLocaleFilePath,
     )
     if (fs.existsSync(localeFilePath) && !ignorePathExists) {
       console.log(`${localeFilePath}...`)
@@ -70,22 +79,32 @@ export const processTranslations = async ({
       const localLines = fs
         .readFileSync(localeFilePath, 'utf-8')
         .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.match(/'[^']*':/))
-        .map(line => line.match(/'([^']+)':/)?.[1] ?? '')
+        .map((line) => line.trim())
+        .filter(
+          (line) =>
+            !line.startsWith('//') &&
+            line.match(/(?:['"][^'"]*['"]\s*:|^[a-zA-Z_$][\w$]*\s*:)/),
+        )
+        .map(
+          (line) =>
+            (line.match(/['"]([^'"]+)['"]\s*:/) ??
+              line.match(/^([a-zA-Z_$][\w$]*)\s*:/))?.[1] ?? '',
+        )
+        .filter(Boolean)
         .sort()
 
       const missingTranslations = getMissingTranslations({
         localLines,
         extractedTranslations: allExtractedTranslations,
         excludeKey: config.excludeKey,
+        prefixKeys: config.prefixKeys,
       })
 
       pathUnusedLocalesCount = missingTranslations.length
       totalUnusedLocales += pathUnusedLocalesCount
 
       const formattedMissingTranslations = missingTranslations
-        .map(translation => `\x1b[31m${translation}\x1b[0m`)
+        .map((translation) => `\x1b[31m${translation}\x1b[0m`)
         .join('\n')
 
       const message = missingTranslations.length
@@ -100,14 +119,14 @@ export const processTranslations = async ({
       }
 
       // Remove the unused locale keys
-      action === 'remove'
-        ? removeLocaleKeys({
-            localePath: localeFilePath,
-            missingTranslations: missingTranslations,
-          })
-        : null
+      if (action === 'remove') {
+        removeLocaleKeys({
+          localePath: localeFilePath,
+          missingTranslations: missingTranslations,
+        })
+      }
     }
-  })
+  }
   const endTime = performance.now()
 
   summary({ unusedLocalesCountByPath, totalUnusedLocales })
@@ -117,8 +136,5 @@ export const processTranslations = async ({
     )}ms\x1b[0m`,
   )
 
-  // Check if totalUnusedLocales is greater than 0
-  if (totalUnusedLocales > 0) {
-    process.exit(1)
-  }
+  return totalUnusedLocales
 }

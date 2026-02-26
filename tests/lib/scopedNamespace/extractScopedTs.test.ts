@@ -108,4 +108,48 @@ describe('extractScopedTs', () => {
     expect(result).toEqual(expect.arrayContaining(expected))
     expect(expected).toEqual(expect.arrayContaining(result))
   })
+
+  it('should handle ternary with template literal branches', () => {
+    const fileContent = `
+      {scopedT(cond ? \`policy.\${pubPolicy}\` : \`policy.\${subPolicy}\`)}
+      {scopedT(isActive ? \`status.active\` : \`status.inactive\`)}
+    `
+    const result = extractScopedTs({
+      fileContent,
+      namespaceTranslation: 'ns',
+      scopedName: 'scopedT',
+    })
+
+    expect(result).toContain('ns.policy.**')
+    expect(result).toContain('ns.status.active')
+    expect(result).toContain('ns.status.inactive')
+  })
+
+  it('should handle complex expression arguments with wildcard fallback', () => {
+    const fileContent = `
+      {scopedT(toCamelCase(offer.name) as 'costOptimized' | 'productionOptimized')}
+    `
+    const result = extractScopedTs({
+      fileContent,
+      namespaceTranslation: 'ns',
+      scopedName: 'scopedT',
+    })
+
+    expect(result).toContain('ns.**')
+  })
+
+  it('should handle scopedName with regex special characters (e.g. $t)', () => {
+    const fileContent = `
+      {$t('someKey')}
+      {$t('anotherKey', { param: 1 })}
+    `
+    const result = extractScopedTs({
+      fileContent,
+      namespaceTranslation: 'ns',
+      scopedName: '$t',
+    })
+
+    expect(result).toContain('ns.someKey')
+    expect(result).toContain('ns.anotherKey')
+  })
 })

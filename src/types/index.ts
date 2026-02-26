@@ -10,12 +10,14 @@ export type Config = {
   ignorePaths?: string[]
   excludeKey?: string | string[]
   scopedNames: string[]
+  prefixKeys?: string[]
+  customPatterns?: string[]
+  filePatterns?: string[]
 }
 
 type UnusedLocalesCountByPath = {
   path: string
   messages?: string
-  warning?: string
 }
 export type ProcessTranslationsArgs = {
   paths?: { srcPath: string[]; localPath: string }[]
@@ -29,6 +31,7 @@ export type SummaryArgs = {
 export type AnalyzeArgs = {
   filePath: string
   scopedNames?: string[]
+  customPatterns?: string[]
 }
 export type RemoveLocaleKeysArgs = {
   localePath: string
@@ -36,7 +39,7 @@ export type RemoveLocaleKeysArgs = {
 }
 export type SearchFilesRecursivelyArgs = {
   baseDir: string
-  regex: RegExp
+  regexes: RegExp[]
   excludePatterns: RegExp[]
 }
 export type ExtractTranslationArgs = {
@@ -51,6 +54,7 @@ export type GetMissingTranslationsArgs = {
   localLines: string[]
   extractedTranslations: string[]
   excludeKey: string | string[] | undefined
+  prefixKeys?: string[]
 }
 export type ShouldExcludeArgs = {
   line: string
