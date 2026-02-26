@@ -1,13 +1,15 @@
 {
   "name": "unused-i18n",
-  "version": "0.2.0-beta.4",
+  "version": "0.2.0",
   "license": "MIT",
   "type": "module",
   "publishConfig": {
     "access": "public"
   },
   "release": {
-    "branches": ["main"]
+    "branches": [
+      "main"
+    ]
   },
   "repository": {
     "type": "git",
@@ -18,7 +20,9 @@
   "bin": {
     "unused-i18n": "dist/cli.cjs"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "vite build --config vite.config.ts && pnpm run type:generate",
     "type:generate": "tsc --declaration -p tsconfig.build.json",
