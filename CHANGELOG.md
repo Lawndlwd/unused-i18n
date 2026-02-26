@@ -1,5 +1,12 @@
 # unused-i18n
 
+## 0.2.0
+
+### Minor Changes
+
+- 9c087d4: add more use cases
+- e8ae712: Fix some bugs related to namespacetranslation
+
 ## 0.1.29
 
 ### Patch Changes
